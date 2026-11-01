@@ -124,9 +124,11 @@ export default function Header({ categories, facebookUrl = 'https://www.facebook
               <Search className="w-4 h-4" />
             </button>
 
-            {/* الحساب (Account Login Link) */}
+            {/* الحساب (Account Login Link - opens in a new tab) */}
             <Link
               href="/login"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-gray-800 hover:text-[#d0121a] transition"
             >
               <div className="w-5 h-5 rounded-full border border-gray-800 flex items-center justify-center">

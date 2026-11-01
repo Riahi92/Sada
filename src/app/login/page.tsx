@@ -6,15 +6,16 @@ import {
   AlertCircle, 
   CheckCircle2, 
   Loader2,
-  ShieldCheck
+  Lock,
+  ArrowRight
 } from 'lucide-react';
-import FloatingAiBar from '@/components/FloatingAiBar';
 import { createClient } from '@/utils/supabase/client';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('editor@sada.tn');
-  const [password, setPassword] = useState('admin123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -43,10 +44,27 @@ export default function LoginPage() {
     }
   };
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    // Step 1: If password field is not shown yet, validate email and reveal password field
+    if (!showPassword) {
+      if (!email || !email.includes('@')) {
+        setError('يرجى إدخال عنوان بريد إلكتروني صالح.');
+        return;
+      }
+      setShowPassword(true);
+      return;
+    }
+
+    // Step 2: Validate password and authenticate
+    if (!password) {
+      setError('يرجى إدخال كلمة المرور.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch('/api/auth/login', {
@@ -57,7 +75,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setSuccess('تم تسجيل الدخول بنجاح! جاري التوجيه للوحة التحكم...');
+        setSuccess('تم تسجيل الدخول بنجاح! جاري التوجيه...');
         if (typeof window !== 'undefined') {
           localStorage.setItem('sada_admin_token', 'authenticated');
           localStorage.setItem('sada_admin_user', JSON.stringify(data.user));
@@ -100,7 +118,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Social Authentication Buttons (Exact match to uploaded image) */}
+        {/* Social Authentication Buttons */}
         <div className="w-full space-y-3 mb-6">
           {/* 1. Google Button */}
           <button
@@ -151,8 +169,9 @@ export default function LoginPage() {
           <span className="bg-white px-4 text-xs text-gray-500 font-medium absolute">أو</span>
         </div>
 
-        {/* Email & Password Input Form */}
-        <form onSubmit={handleEmailAuth} className="w-full space-y-4 mt-2">
+        {/* Authentication Form */}
+        <form onSubmit={handleFormSubmit} className="w-full space-y-4 mt-2">
+          {/* Email input field - always clean and empty by default */}
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1.5 text-right">
               البريد الإلكتروني
@@ -167,19 +186,32 @@ export default function LoginPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1.5 text-right">
-              كلمة المرور
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="أدخل كلمة المرور"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition placeholder-gray-400 text-right"
-            />
-          </div>
+          {/* Password field - hidden initially to match the Al Jazeera design */}
+          {showPassword && (
+            <div className="transition-all duration-300">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-gray-700 text-right">
+                  كلمة المرور
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(false)}
+                  className="text-[11px] text-gray-500 hover:text-black transition"
+                >
+                  تعديل البريد
+                </button>
+              </div>
+              <input
+                type="password"
+                required
+                autoFocus
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="أدخل كلمة المرور"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition placeholder-gray-400 text-right"
+              />
+            </div>
+          )}
 
           {/* Submit Button */}
           <button
@@ -193,24 +225,9 @@ export default function LoginPage() {
                 <span>جاري التحقق...</span>
               </>
             ) : (
-              <span>متابعة</span>
+              <span>{showPassword ? 'تسجيل الدخول' : 'متابعة'}</span>
             )}
           </button>
-
-          {/* Admin preset shortcut */}
-          <div className="pt-3 text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setEmail('editor@sada.tn');
-                setPassword('admin123456');
-              }}
-              className="text-xs text-gray-500 hover:text-black transition flex items-center justify-center gap-1 mx-auto"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>تعبئة بيانات مدير التحرير (editor@sada.tn)</span>
-            </button>
-          </div>
         </form>
       </div>
     </div>
