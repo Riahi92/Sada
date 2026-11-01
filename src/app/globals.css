@@ -53,6 +53,31 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   overflow: hidden;
 }
 
+/* Stitch Design Theme & Header Styles */
+.header-gradient-bg {
+  background: linear-gradient(135deg, #072557 0%, #0d468e 50%, #082d64 100%);
+  position: relative;
+}
+
+.header-gradient-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 50%, rgba(30, 99, 195, 0.4) 0%, transparent 60%),
+                    radial-gradient(circle at 80% 30%, rgba(208, 18, 26, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Card Hover transitions */
+.news-card-hover {
+  transition: all 0.25s ease-in-out;
+}
+
+.news-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.12);
+}
+
 /* Smooth transitions */
 a, button {
   transition: all 0.15s ease-in-out;

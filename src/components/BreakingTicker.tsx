@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Flame, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Zap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Article } from '@/types/database';
 
 interface BreakingTickerProps {
@@ -33,47 +33,47 @@ export default function BreakingTicker({ articles }: BreakingTickerProps) {
   };
 
   return (
-    <div className="w-full bg-brand-navy border-b border-brand-border/20 text-white overflow-hidden shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 flex items-center h-12">
-        {/* Urgent Badge */}
-        <div className="flex-shrink-0 flex items-center gap-2 bg-brand-red text-white px-3.5 py-1.5 rounded font-heading font-black text-sm tracking-wide z-10 shadow-sm">
-          <span className="w-2 h-2 rounded-full bg-white animate-pulseGlow"></span>
-          <span>عـاجـل</span>
+    <section className="bg-white border-b border-gray-200 py-1.5 px-4 sm:px-8 shadow-sm z-20" data-purpose="breaking-news">
+      <div className="max-w-7xl mx-auto flex items-center gap-3">
+        {/* Breaking Label */}
+        <div className="flex items-center bg-[#d0121a] text-white font-extrabold text-sm px-4 py-1.5 rounded shadow-sm shrink-0">
+          <Zap className="w-4 h-4 ml-1.5 animate-bounce fill-white text-white" />
+          <span>عاجل</span>
         </div>
 
-        {/* Headline Display */}
-        <div className="flex-1 overflow-hidden px-4 text-sm font-medium font-cairo">
+        {/* Marquee / Ticker text */}
+        <div className="flex-1 overflow-hidden relative">
           <Link
             href={`/news/${currentArticle.slug}`}
-            className="hover:text-red-300 transition line-clamp-1 block"
+            className="text-sm font-bold text-gray-800 truncate hover:text-[#d0121a] cursor-pointer transition block"
           >
             {currentArticle.title}
           </Link>
         </div>
 
-        {/* Navigation Controls */}
+        {/* Arrow Controls */}
         {articles.length > 1 && (
-          <div className="flex-shrink-0 flex items-center gap-1">
-            <span className="text-[11px] text-gray-400 font-mono ml-2">
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-[11px] text-gray-400 font-mono ml-2 hidden sm:inline-block">
               {currentIndex + 1} / {articles.length}
             </span>
             <button
               onClick={handlePrev}
-              className="p-1 text-gray-300 hover:text-white hover:bg-white/10 rounded transition"
-              title="الخبر السابق"
+              className="w-7 h-7 rounded bg-gray-100 hover:bg-[#d0121a] hover:text-white text-gray-700 flex items-center justify-center transition text-xs"
+              title="السابق"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={handleNext}
-              className="p-1 text-gray-300 hover:text-white hover:bg-white/10 rounded transition"
-              title="الخبر التالي"
+              className="w-7 h-7 rounded bg-gray-100 hover:bg-[#d0121a] hover:text-white text-gray-700 flex items-center justify-center transition text-xs"
+              title="التالي"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

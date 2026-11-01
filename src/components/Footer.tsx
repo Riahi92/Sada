@@ -1,7 +1,19 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Heart } from 'lucide-react';
+import { 
+  Facebook, 
+  Twitter, 
+  Instagram, 
+  Youtube, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  ChevronLeft,
+  Send
+} from 'lucide-react';
 import { Category, SiteSettings } from '@/types/database';
 
 interface FooterProps {
@@ -14,161 +26,154 @@ export default function Footer({ categories, settings }: FooterProps) {
   const facebookUrl = settings?.facebook_url || 'https://www.facebook.com/profile.php?id=61584651215444';
 
   return (
-    <footer className="bg-brand-navyDark text-gray-300 border-t-4 border-brand-red mt-16 font-tajawal">
-      {/* Upper Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand & About */}
+    <footer className="bg-[#051838] text-slate-300 border-t-4 border-[#d0121a] mt-16 pt-10 pb-6 text-sm font-tajawal" data-purpose="site-footer">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
+        {/* Footer 4 Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-8 border-b border-blue-900/60">
+          
+          {/* Column 1: Brand Info */}
           <div className="space-y-4">
-            <div className="relative h-12 w-44">
-              <Image
-                src="/images/logo.png"
-                alt="منصة صدى الإخبارية"
-                fill
-                sizes="176px"
-                className="object-contain"
-              />
+            <div className="flex items-center gap-3">
+              <div className="relative h-10 w-28">
+                <Image
+                  src="/images/logo.png"
+                  alt="شعار صدى"
+                  fill
+                  sizes="112px"
+                  className="object-contain"
+                />
+              </div>
+              <h2 className="text-xl font-black text-white font-heading">أخبار اليوم</h2>
             </div>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              منصة إخبارية تونسية وعربية مستقلة وشاملة، تنقل الخبر بمصداقية وعمق وموضوعية، ملتزمة بأعلى معايير النزاهة الصحفية ومواكبة الثورة الرقمية.
+            <p className="text-xs text-slate-400 leading-relaxed">
+              بوابة إخبارية تونسية شاملة تقدم تغطية إخبارية مستقلة وموثوقة على مدار الساعة برؤية وطنية متجددة وتغطية شاملة لكل ربوع الوطن.
             </p>
             <div className="flex items-center gap-2 pt-2">
               <a
                 href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-brand-navy hover:bg-brand-red flex items-center justify-center transition text-white"
+                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
                 title="صفحتنا على فيسبوك"
               >
-                <Facebook className="w-4 h-4" />
+                <Facebook className="w-3.5 h-3.5" />
               </a>
               <a
                 href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-brand-navy hover:bg-brand-red flex items-center justify-center transition text-white"
-                title="تويتر / إكس"
+                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
+                title="إكس / تويتر"
               >
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-brand-navy hover:bg-brand-red flex items-center justify-center transition text-white"
-                title="إنستغرام"
-              >
-                <Instagram className="w-4 h-4" />
+                <Twitter className="w-3.5 h-3.5" />
               </a>
               <a
                 href="https://youtube.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-brand-navy hover:bg-brand-red flex items-center justify-center transition text-white"
+                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
                 title="يوتيوب"
               >
-                <Youtube className="w-4 h-4" />
+                <Youtube className="w-3.5 h-3.5" />
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
+                title="إنستغرام"
+              >
+                <Instagram className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
 
-          {/* Quick Categories */}
+          {/* Column 2: Sections */}
           <div>
-            <h4 className="font-heading font-bold text-white text-base mb-4 pb-2 border-b border-brand-navyLight flex items-center gap-2">
-              <span className="w-2 h-2 bg-brand-red rounded-full"></span>
-              <span>الأقسام الإخبارية</span>
+            <h4 className="text-white font-bold text-sm mb-4 border-r-2 border-[#d0121a] pr-2 font-heading">
+              أقسام الموقع
             </h4>
-            <ul className="grid grid-cols-2 gap-2 text-xs">
-              {categories.map((cat) => (
+            <ul className="space-y-2 text-xs text-slate-400">
+              {categories.slice(0, 6).map((cat) => (
                 <li key={cat.id}>
                   <Link
                     href={`/category/${cat.slug}`}
-                    className="hover:text-white hover:underline transition py-1 block"
+                    className="hover:text-white transition flex items-center gap-1.5"
                   >
-                    {cat.name}
+                    <ChevronLeft className="w-3 h-3 text-[#d0121a]" />
+                    <span>{cat.name}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Institutional Links */}
+          {/* Column 3: Quick Links */}
           <div>
-            <h4 className="font-heading font-bold text-white text-base mb-4 pb-2 border-b border-brand-navyLight flex items-center gap-2">
-              <span className="w-2 h-2 bg-brand-red rounded-full"></span>
-              <span>روابط تهمك</span>
+            <h4 className="text-white font-bold text-sm mb-4 border-r-2 border-[#d0121a] pr-2 font-heading">
+              روابط سريعة
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <Link href="/about" className="hover:text-white transition">
-                  من نحن ورسالتنا الصحفية
+                <Link href="/privacy-policy" className="hover:text-white transition flex items-center gap-1.5">
+                  <ChevronLeft className="w-3 h-3 text-[#d0121a]" />
+                  <span>سياسة الخصوصية</span>
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="hover:text-white transition">
-                  سياسة الخصوصية
+                <Link href="/terms" className="hover:text-white transition flex items-center gap-1.5">
+                  <ChevronLeft className="w-3 h-3 text-[#d0121a]" />
+                  <span>شروط الاستخدام</span>
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="hover:text-white transition">
-                  شروط الاستخدام وحقوق النشر
+                <Link href="/about" className="hover:text-white transition flex items-center gap-1.5">
+                  <ChevronLeft className="w-3 h-3 text-[#d0121a]" />
+                  <span>ميثاق الشرف الصحفي</span>
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-white transition">
-                  اتصل بهيئة التحرير
+                <Link href="/about" className="hover:text-white transition flex items-center gap-1.5">
+                  <ChevronLeft className="w-3 h-3 text-[#d0121a]" />
+                  <span>فريق التحرير</span>
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="text-brand-red font-bold hover:underline transition">
-                  دخول المحررين ولوحة الإدارة
+                <Link href="/contact" className="hover:text-white transition flex items-center gap-1.5">
+                  <ChevronLeft className="w-3 h-3 text-[#d0121a]" />
+                  <span>انضم إلينا</span>
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Contact Details */}
+          {/* Column 4: Contact & Office */}
           <div>
-            <h4 className="font-heading font-bold text-white text-base mb-4 pb-2 border-b border-brand-navyLight flex items-center gap-2">
-              <span className="w-2 h-2 bg-brand-red rounded-full"></span>
-              <span>اتصل بنا</span>
+            <h4 className="text-white font-bold text-sm mb-4 border-r-2 border-[#d0121a] pr-2 font-heading">
+              اتصل بنا
             </h4>
-            <div className="space-y-3 text-xs text-gray-300">
-              <p className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-brand-red flex-shrink-0 mt-0.5" />
-                <span>تونس العاصمة، شارع الحبيب بورقيبة، الجمهورية التونسية</span>
-              </p>
-              <p className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-brand-red flex-shrink-0" />
+            <ul className="space-y-2.5 text-xs text-slate-400">
+              <li className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-[#d0121a] shrink-0 mt-0.5" />
+                <span>تونس العاصمة، الجمهورية التونسية</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-[#d0121a] shrink-0" />
+                <span dir="ltr" className="font-mono">+216 71 000 000</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-[#d0121a] shrink-0" />
                 <span>contact@sada-news.tn</span>
-              </p>
-              <p className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-brand-red flex-shrink-0" />
-                <span>+216 71 000 000</span>
-              </p>
-              <div className="pt-2">
-                <a
-                  href={facebookUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 transition"
-                >
-                  <Facebook className="w-3.5 h-3.5" />
-                  <span>تواصل معنا عبر صفحة فيسبوك</span>
-                </a>
-              </div>
-            </div>
+              </li>
+            </ul>
           </div>
-        </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="bg-black/50 py-4 px-4 border-t border-white/5 text-xs text-center text-gray-400">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© {currentYear} منصة صدى الإخبارية. جميع الحقوق محفوظة.</p>
-          <p className="flex items-center gap-1">
-            <span>صمم وطور بأحدث تقنيات الويب الحديثة</span>
-          </p>
+        </div>
+
+        {/* Bottom Rights & Copyright */}
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+          <p>© {currentYear} أخبار اليوم (صدى تونس) - جميع الحقوق محفوظة.</p>
+          <p className="text-slate-400">تصميم وتطوير المنصة الإعلامية الوطنية</p>
         </div>
       </div>
     </footer>
