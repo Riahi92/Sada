@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Folder, Check, AlertCircle, Save } from 'lucide-react';
+import { Plus, Edit2, Trash2, Folder, Check, AlertCircle, Save, RefreshCw, Sparkles } from 'lucide-react';
 import { Category } from '@/types/database';
 
 export default function AdminCategoriesPage() {
@@ -14,8 +14,35 @@ export default function AdminCategoriesPage() {
   const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [icon, setIcon] = useState('Folder');
+  const [isSlugCustomized, setIsSlugCustomized] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const generateSlug = (text: string): string => {
+    return text
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\u0600-\u06FF\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    if (!isSlugCustomized) {
+      setSlug(generateSlug(val));
+    }
+  };
+
+  const handleSlugChange = (val: string) => {
+    setSlug(val);
+    setIsSlugCustomized(true);
+  };
+
+  const handleRegenerateSlug = () => {
+    setSlug(generateSlug(name));
+    setIsSlugCustomized(false);
+  };
 
   const fetchCategories = async () => {
     try {
@@ -173,28 +200,44 @@ export default function AdminCategoriesPage() {
                 type="text"
                 required
                 value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (!editingCategory && !slug) {
-                    setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'));
-                  }
-                }}
+                onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="مثال: أخبار الطاقة، شؤون دولية..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy focus:bg-white transition"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                الرابط التعريفي (Slug) *
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-bold text-gray-700">
+                  الرابط التعريفي (Slug) *
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 font-medium ${
+                    isSlugCustomized 
+                      ? 'text-amber-700 bg-amber-50 border border-amber-200' 
+                      : 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                  }`}>
+                    <Sparkles className="w-2.5 h-2.5" />
+                    {isSlugCustomized ? 'معدل' : 'تلقائي'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleRegenerateSlug}
+                    className="text-[10px] text-blue-600 hover:text-blue-800 flex items-center gap-0.5 font-bold transition"
+                    title="توليد تلقائي"
+                  >
+                    <RefreshCw className="w-2.5 h-2.5" />
+                    <span>توليد</span>
+                  </button>
+                </div>
+              </div>
               <input
                 type="text"
                 required
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
+                onChange={(e) => handleSlugChange(e.target.value)}
                 placeholder="energy-news"
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-brand-navy focus:bg-white transition"
               />
             </div>
 

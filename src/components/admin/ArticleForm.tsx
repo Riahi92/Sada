@@ -21,7 +21,9 @@ import {
   CheckCircle2, 
   AlertCircle,
   Clock,
-  ArrowRight
+  ArrowRight,
+  RefreshCw,
+  Sparkles
 } from 'lucide-react';
 import { Article, Category } from '@/types/database';
 
@@ -51,19 +53,35 @@ export default function ArticleForm({ initialData, categories, isEdit = false }:
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isSlugCustomized, setIsSlugCustomized] = useState(Boolean(initialData?.slug));
+
+  // Helper to generate clean slug (supports Arabic, English, numbers)
+  const generateSlug = (text: string): string => {
+    return text
+      .trim()
+      .toLowerCase()
+      .replace(/[^\w\u0600-\u06FF\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
 
   // Auto slug generation from title
   const handleTitleChange = (val: string) => {
     setTitle(val);
-    if (!isEdit && !slug) {
-      const generated = val
-        .trim()
-        .toLowerCase()
-        .replace(/[^\w\u0621-\u064A\s-]/g, '')
-        .replace(/[\s_-]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      setSlug(generated || `article-${Date.now()}`);
+    if (!isSlugCustomized) {
+      setSlug(generateSlug(val));
     }
+  };
+
+  const handleSlugChange = (val: string) => {
+    setSlug(val);
+    setIsSlugCustomized(true);
+  };
+
+  const handleRegenerateSlug = () => {
+    const autoSlug = generateSlug(title);
+    setSlug(autoSlug || `article-${Date.now()}`);
+    setIsSlugCustomized(false);
   };
 
   // Editor formatting helper
@@ -96,9 +114,11 @@ export default function ArticleForm({ initialData, categories, isEdit = false }:
     setSaving(true);
     setMessage(null);
 
+    const finalSlug = slug.trim() || generateSlug(title) || `article-${Date.now()}`;
+
     const payload = {
       title,
-      slug: slug || `article-${Date.now()}`,
+      slug: finalSlug,
       excerpt,
       content,
       category_id: categoryId,
@@ -216,17 +236,41 @@ export default function ArticleForm({ initialData, categories, isEdit = false }:
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold text-gray-500 mb-1">
-                الرابط الدائم (Slug) *
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-[11px] font-bold text-gray-600">
+                  الرابط الدائم (Slug) *
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] px-2 py-0.5 rounded flex items-center gap-1 font-medium ${
+                    isSlugCustomized 
+                      ? 'text-amber-700 bg-amber-50 border border-amber-200' 
+                      : 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                  }`}>
+                    <Sparkles className="w-3 h-3" />
+                    {isSlugCustomized ? 'معدل يدوياً' : 'يتم التوليد تلقائياً'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleRegenerateSlug}
+                    className="text-[11px] text-blue-600 hover:text-blue-800 flex items-center gap-1 transition font-bold"
+                    title="إعادة التوليد تلقائياً من العنوان"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    <span>توليد تلقائي</span>
+                  </button>
+                </div>
+              </div>
               <input
                 type="text"
                 required
                 value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="example-article-slug"
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs font-mono text-gray-600 focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                onChange={(e) => handleSlugChange(e.target.value)}
+                placeholder="يتم توليد الرابط تلقائياً بمجرد كتابة عنوان الخبر..."
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-700 focus:outline-none focus:ring-1 focus:ring-brand-navy focus:bg-white transition"
               />
+              <p className="text-[10px] text-gray-400 mt-1 font-mono" dir="ltr">
+                https://sada-news.tn/news/{slug || 'article-slug'}
+              </p>
             </div>
 
             <div>
