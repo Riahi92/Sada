@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import BreakingTicker from '@/components/BreakingTicker';
+import FloatingAiBar from '@/components/FloatingAiBar';
 import { getCategories, getBreakingNews, getSiteSettings } from '@/lib/db';
 
 const cairo = Cairo({
@@ -80,6 +81,7 @@ export default async function RootLayout({
           {children}
         </main>
         <Footer categories={categories} settings={settings} />
+        <FloatingAiBar />
       </body>
     </html>
   );
