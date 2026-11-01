@@ -170,15 +170,18 @@ export default function LoginPage() {
         </div>
 
         {/* Authentication Form */}
-        <form onSubmit={handleFormSubmit} className="w-full space-y-4 mt-2">
+        <form onSubmit={handleFormSubmit} autoComplete="off" className="w-full space-y-4 mt-2">
           {/* Email input field - always clean and empty by default */}
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1.5 text-right">
+            <label htmlFor="email_field" className="block text-xs font-bold text-gray-700 mb-1.5 text-right">
               البريد الإلكتروني
             </label>
             <input
+              id="email_field"
+              name="sada_login_email"
               type="email"
               required
+              autoComplete="off"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="أدخل البريد الإلكتروني"
@@ -190,7 +193,7 @@ export default function LoginPage() {
           {showPassword && (
             <div className="transition-all duration-300">
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-gray-700 text-right">
+                <label htmlFor="password_field" className="block text-xs font-bold text-gray-700 text-right">
                   كلمة المرور
                 </label>
                 <button
@@ -202,9 +205,12 @@ export default function LoginPage() {
                 </button>
               </div>
               <input
+                id="password_field"
+                name="sada_login_password"
                 type="password"
                 required
                 autoFocus
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="أدخل كلمة المرور"

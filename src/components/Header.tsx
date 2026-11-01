@@ -240,9 +240,20 @@ export default function Header({ categories, facebookUrl = 'https://www.facebook
             {/* Bottom Admin shortcut & Social links */}
             <div className="pt-4 border-t border-gray-100 space-y-3">
               <Link
+                href="/login"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setDrawerOpen(false)}
+                className="flex items-center justify-center gap-2 w-full py-2.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-lg transition shadow-sm"
+              >
+                <UserIcon className="w-4 h-4" />
+                <span>تسجيل الدخول / الحساب (نافذة جديدة)</span>
+              </Link>
+
+              <Link
                 href="/admin"
                 onClick={() => setDrawerOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-2.5 bg-[#d0121a] hover:bg-[#a30c12] text-white text-xs font-bold rounded-lg transition shadow-sm"
+                className="flex items-center justify-center gap-2 w-full py-2 bg-[#d0121a] hover:bg-[#a30c12] text-white text-xs font-bold rounded-lg transition shadow-sm"
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span>دخول لوحة التحكم CMS</span>

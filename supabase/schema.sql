@@ -188,90 +188,75 @@ ALTER TABLE public.article_views ENABLE ROW LEVEL SECURITY;
 
 -- 1. Profiles Policies
 DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.profiles;
-CREATE POLICY "Public profiles are viewable by everyone." 
-ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
-CREATE POLICY "Users can insert their own profile." 
-ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can insert their own profile." ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
 DROP POLICY IF EXISTS "Users can update own profile or admins can update any." ON public.profiles;
-CREATE POLICY "Users can update own profile or admins can update any." 
-ON public.profiles FOR UPDATE USING (
-    auth.uid() = id OR 
-    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Users can update own profile or admins can update any." ON public.profiles FOR UPDATE USING (auth.uid() = id OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- 2. Categories Policies
 DROP POLICY IF EXISTS "Categories are readable by everyone" ON public.categories;
-CREATE POLICY "Categories are readable by everyone"
-ON public.categories FOR SELECT USING (true);
+CREATE POLICY "Categories are readable by everyone" ON public.categories FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Categories writable by admin/editor" ON public.categories;
-CREATE POLICY "Categories writable by admin/editor"
-ON public.categories FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'editor'))
-);
+CREATE POLICY "Categories writable by admin/editor" ON public.categories FOR ALL USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'editor')));
 
 -- 3. Articles Policies
 DROP POLICY IF EXISTS "Published articles are readable by everyone" ON public.articles;
-CREATE POLICY "Published articles are readable by everyone"
-ON public.articles FOR SELECT USING (
-    status = 'published' OR 
-    (auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()))
-);
+CREATE POLICY "Published articles are readable by everyone" ON public.articles FOR SELECT USING (status = 'published' OR (auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid())));
 
 DROP POLICY IF EXISTS "Staff can insert articles" ON public.articles;
-CREATE POLICY "Staff can insert articles"
-ON public.articles FOR INSERT WITH CHECK (
-    auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid())
-);
+CREATE POLICY "Staff can insert articles" ON public.articles FOR INSERT WITH CHECK (auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()));
 
 DROP POLICY IF EXISTS "Staff can update articles" ON public.articles;
-CREATE POLICY "Staff can update articles"
-ON public.articles FOR UPDATE USING (
-    auth.uid() IS NOT NULL AND (
-        author_id = auth.uid() OR
-        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'editor'))
-    )
-);
+CREATE POLICY "Staff can update articles" ON public.articles FOR UPDATE USING (auth.uid() IS NOT NULL AND (author_id = auth.uid() OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'editor'))));
 
 DROP POLICY IF EXISTS "Admin and editors can delete articles" ON public.articles;
-CREATE POLICY "Admin and editors can delete articles"
-ON public.articles FOR DELETE USING (
-    auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'editor'))
-);
+CREATE POLICY "Admin and editors can delete articles" ON public.articles FOR DELETE USING (auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'editor')));
 
--- 4. Newsletter Subscribers Policies
+-- 4. Article Images Policies
+DROP POLICY IF EXISTS "Article images readable by everyone" ON public.article_images;
+CREATE POLICY "Article images readable by everyone" ON public.article_images FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Article images writable by staff" ON public.article_images;
+CREATE POLICY "Article images writable by staff" ON public.article_images FOR ALL USING (auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()));
+
+-- 5. Tags & Article Tags Policies
+DROP POLICY IF EXISTS "Tags readable by everyone" ON public.tags;
+CREATE POLICY "Tags readable by everyone" ON public.tags FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Article tags readable by everyone" ON public.article_tags;
+CREATE POLICY "Article tags readable by everyone" ON public.article_tags FOR SELECT USING (true);
+
+-- 6. Newsletter Subscribers Policies
 DROP POLICY IF EXISTS "Anyone can subscribe to newsletter" ON public.newsletter_subscribers;
-CREATE POLICY "Anyone can subscribe to newsletter"
-ON public.newsletter_subscribers FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can subscribe to newsletter" ON public.newsletter_subscribers FOR INSERT WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Admins can view newsletter subscribers" ON public.newsletter_subscribers;
-CREATE POLICY "Admins can view newsletter subscribers"
-ON public.newsletter_subscribers FOR SELECT USING (
-    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Admins can view newsletter subscribers" ON public.newsletter_subscribers FOR SELECT USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
 
--- 5. Comments Policies
+-- 7. Comments Policies
 DROP POLICY IF EXISTS "Approved comments readable by everyone" ON public.comments;
-CREATE POLICY "Approved comments readable by everyone"
-ON public.comments FOR SELECT USING (is_approved = true OR auth.uid() IS NOT NULL);
+CREATE POLICY "Approved comments readable by everyone" ON public.comments FOR SELECT USING (is_approved = true OR auth.uid() IS NOT NULL);
 
 DROP POLICY IF EXISTS "Anyone can submit comments" ON public.comments;
-CREATE POLICY "Anyone can submit comments"
-ON public.comments FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anyone can submit comments" ON public.comments FOR INSERT WITH CHECK (true);
 
--- 6. Settings Policies
+-- 8. Settings Policies
 DROP POLICY IF EXISTS "Settings are viewable by everyone" ON public.site_settings;
-CREATE POLICY "Settings are viewable by everyone"
-ON public.site_settings FOR SELECT USING (true);
+CREATE POLICY "Settings are viewable by everyone" ON public.site_settings FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Only admins can update settings" ON public.site_settings;
-CREATE POLICY "Only admins can update settings"
-ON public.site_settings FOR UPDATE USING (
-    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Only admins can update settings" ON public.site_settings FOR UPDATE USING (EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- 9. Article Views Policies
+DROP POLICY IF EXISTS "Anyone can record views" ON public.article_views;
+CREATE POLICY "Anyone can record views" ON public.article_views FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Views readable by everyone" ON public.article_views;
+CREATE POLICY "Views readable by everyone" ON public.article_views FOR SELECT USING (true);
 
 -- ========================================================
 -- SEED DATA (الأقسام والإعدادات الافتراضية)
