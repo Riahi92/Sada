@@ -20,25 +20,28 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Simulate/Authenticate
-      if (email && password) {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         setSuccess('تم تسجيل الدخول بنجاح! جاري التوجيه للوحة التحكم...');
         if (typeof window !== 'undefined') {
           localStorage.setItem('sada_admin_token', 'authenticated');
-          localStorage.setItem('sada_admin_user', JSON.stringify({
-            name: 'مروان الرياحي (رئيس التحرير)',
-            email: email,
-            role: 'admin',
-          }));
+          localStorage.setItem('sada_admin_user', JSON.stringify(data.user));
         }
         setTimeout(() => {
           router.push('/admin');
-        }, 1000);
+          router.refresh();
+        }, 800);
       } else {
-        setError('يرجى إدخال البريد الإلكتروني وكلمة المرور');
+        setError(data.message || 'بيانات الدخول غير صحيحة');
       }
     } catch {
-      setError('حدث خطأ أثناء تسجيل الدخول');
+      setError('حدث خطأ أثناء محاولة تسجيل الدخول');
     } finally {
       setLoading(false);
     }

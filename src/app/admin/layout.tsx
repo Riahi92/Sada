@@ -25,12 +25,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
     if (typeof window !== 'undefined') {
       localStorage.removeItem('sada_admin_token');
       localStorage.removeItem('sada_admin_user');
     }
     router.push('/login');
+    router.refresh();
   };
 
   const navItems = [
