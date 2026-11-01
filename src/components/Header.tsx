@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   Search, 
@@ -137,21 +138,22 @@ export default function Header({ categories, facebookUrl = 'https://www.facebook
         <div className="flex items-center justify-between gap-6">
           {/* Logo & Platform Name */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 bg-gradient-to-br from-brand-navy to-brand-navyLight rounded-lg flex items-center justify-center shadow-md relative overflow-hidden group-hover:shadow-lg transition">
-              <span className="font-heading font-extrabold text-2xl text-white tracking-wider">ص</span>
-              <div className="absolute top-0 right-0 w-3 h-3 bg-brand-red rounded-bl-md"></div>
+            <div className="relative h-11 w-36 sm:h-14 sm:w-44 transition group-hover:scale-105 duration-300">
+              <Image
+                src="/images/logo.png"
+                alt="منصة صدى الإخبارية"
+                fill
+                priority
+                sizes="(max-width: 640px) 144px, 176px"
+                className="object-contain"
+              />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-heading font-black text-3xl md:text-4xl text-brand-navy tracking-tight">
-                  صَـدَى
-                </span>
-                <span className="bg-brand-red text-white text-[11px] font-bold px-2 py-0.5 rounded tracking-wide">
-                  إخباري
-                </span>
-              </div>
-              <p className="text-xs text-brand-muted font-tajawal hidden sm:block">
-                المنصة الإخبارية التونسية والعربية الشاملة
+            <div className="hidden sm:block border-r border-gray-200 pr-3 mr-1">
+              <span className="bg-brand-red text-white text-[10px] font-bold px-2 py-0.5 rounded tracking-wide inline-block mb-0.5">
+                إخباري مستقل
+              </span>
+              <p className="text-[11px] text-brand-muted font-tajawal">
+                صوت الكلمة الصادقة
               </p>
             </div>
           </Link>

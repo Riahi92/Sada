@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Lock, Mail, ArrowLeft, ArrowRight, Shield, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -48,8 +49,15 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-2xl border border-brand-border p-8 shadow-xl">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-brand-navy rounded-2xl flex items-center justify-center text-white font-heading font-black text-3xl mx-auto mb-4 shadow-md">
-            ص
+          <div className="relative h-14 w-48 mx-auto mb-4">
+            <Image
+              src="/images/logo.png"
+              alt="منصة صدى"
+              fill
+              priority
+              sizes="192px"
+              className="object-contain"
+            />
           </div>
           <h1 className="font-heading font-black text-2xl text-brand-navy">
             منظومة إدارة المحتوى «صدى»

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
@@ -66,17 +67,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div>
           {/* Brand */}
-          <div className="p-6 border-b border-brand-navyLight flex items-center justify-between">
+          <div className="p-5 border-b border-brand-navyLight flex items-center justify-between">
             <Link href="/admin" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-lg bg-brand-red flex items-center justify-center text-white font-heading font-black text-xl shadow">
-                ص
+              <div className="relative h-9 w-32">
+                <Image
+                  src="/images/logo.png"
+                  alt="صَـدَى CMS"
+                  fill
+                  sizes="128px"
+                  className="object-contain"
+                />
               </div>
-              <div>
-                <span className="font-heading font-black text-xl text-white tracking-wide block">
-                  صَـدَى CMS
-                </span>
-                <span className="text-[10px] text-gray-300">منظومة التحرير والنشر</span>
-              </div>
+              <span className="text-[10px] text-gray-300 font-bold border-r border-gray-600 pr-2">CMS</span>
             </Link>
           </div>
 

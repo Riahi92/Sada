@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Heart } from 'lucide-react';
 import { Category, SiteSettings } from '@/types/database';
 
@@ -19,13 +20,14 @@ export default function Footer({ categories, settings }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand & About */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-brand-red rounded-lg flex items-center justify-center text-white font-heading font-black text-xl shadow">
-                ص
-              </div>
-              <span className="font-heading font-black text-2xl text-white tracking-wide">
-                مـنـصـة صَـدَى
-              </span>
+            <div className="relative h-12 w-44">
+              <Image
+                src="/images/logo.png"
+                alt="منصة صدى الإخبارية"
+                fill
+                sizes="176px"
+                className="object-contain"
+              />
             </div>
             <p className="text-sm text-gray-300 leading-relaxed">
               منصة إخبارية تونسية وعربية مستقلة وشاملة، تنقل الخبر بمصداقية وعمق وموضوعية، ملتزمة بأعلى معايير النزاهة الصحفية ومواكبة الثورة الرقمية.

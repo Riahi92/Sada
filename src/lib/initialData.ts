@@ -351,7 +351,7 @@ export const initialArticles: Article[] = [
 export const initialSiteSettings: SiteSettings = {
   site_name: "صدى | المنصة الإخبارية الرقمية",
   site_description: "منصة إخبارية تونسية وعربية مستقلة تنقل الخبر بمصداقية وموضوعية وعمق على مدار الساعة.",
-  logo_url: "/logo.svg",
+  logo_url: "/images/logo.png",
   contact_email: "contact@sada-news.tn",
   facebook_url: "https://www.facebook.com/profile.php?id=61584651215444",
   instagram_url: "https://instagram.com",
