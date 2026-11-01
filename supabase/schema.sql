@@ -3,7 +3,7 @@
 -- PostgreSQL with Supabase Auth, Storage & RLS
 -- ========================================================
 
--- Enable necessary extensions
+-- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. PROFILES TABLE (Linked with Supabase Auth)
@@ -98,17 +98,17 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     site_name TEXT NOT NULL DEFAULT 'صدى - منصة إخبارية رقمية',
     site_description TEXT NOT NULL DEFAULT 'منصة إخبارية تونسية وعربية مستقلة تنقل الخبر بمصداقية وعمق على مدار الساعة.',
-    logo_url TEXT DEFAULT '/images/logo.png',
+    logo_url TEXT DEFAULT '/logo.svg',
     contact_email TEXT DEFAULT 'contact@sada-news.tn',
     facebook_url TEXT DEFAULT 'https://www.facebook.com/profile.php?id=61584651215444',
     instagram_url TEXT DEFAULT 'https://instagram.com',
-    twitter_url TEXT DEFAULT 'https://twitter.com',
+    twitter_url TEXT DEFAULT 'https://x.com',
     youtube_url TEXT DEFAULT 'https://youtube.com',
     breaking_ticker_enabled BOOLEAN DEFAULT TRUE NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- 10. ARTICLE VIEWS TABLE (Tracking unique views)
+-- 10. ARTICLE VIEWS TABLE
 CREATE TABLE IF NOT EXISTS public.article_views (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     article_id UUID NOT NULL REFERENCES public.articles(id) ON DELETE CASCADE,
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS public.article_views (
     viewed_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- INDEXES FOR PERFORMANCE
+-- INDEXES
 CREATE INDEX IF NOT EXISTS idx_articles_slug ON public.articles(slug);
 CREATE INDEX IF NOT EXISTS idx_articles_category ON public.articles(category_id);
 CREATE INDEX IF NOT EXISTS idx_articles_status ON public.articles(status);
@@ -126,7 +126,7 @@ CREATE INDEX IF NOT EXISTS idx_articles_views ON public.articles(views_count DES
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON public.categories(slug);
 CREATE INDEX IF NOT EXISTS idx_views_article ON public.article_views(article_id);
 
--- FUNCTION & TRIGGER: Update Updated_At timestamp
+-- FUNCTION: Update updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -135,21 +135,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER update_articles_updated_at
+DROP TRIGGER IF EXISTS update_articles_updated_at ON public.articles;
+CREATE TRIGGER update_articles_updated_at
 BEFORE UPDATE ON public.articles
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE OR REPLACE TRIGGER update_profiles_updated_at
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
+CREATE TRIGGER update_profiles_updated_at
 BEFORE UPDATE ON public.profiles
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
--- FUNCTION: Increment Article Views safely (Avoiding spam)
+-- FUNCTION: Record article view (prevents duplicate spam within 30 mins)
 CREATE OR REPLACE FUNCTION record_article_view(p_article_id UUID, p_viewer_ip TEXT DEFAULT NULL, p_user_agent TEXT DEFAULT NULL)
 RETURNS VOID AS $$
 BEGIN
-    -- Check if IP viewed in the last 30 minutes to prevent duplicate counter spam
     IF p_viewer_ip IS NOT NULL THEN
         IF EXISTS (
             SELECT 1 FROM public.article_views
@@ -161,11 +162,9 @@ BEGIN
         END IF;
     END IF;
 
-    -- Insert log
     INSERT INTO public.article_views (article_id, viewer_ip, user_agent, viewed_at)
     VALUES (p_article_id, p_viewer_ip, p_user_agent, NOW());
 
-    -- Increment counter
     UPDATE public.articles
     SET views_count = views_count + 1
     WHERE id = p_article_id;
@@ -188,39 +187,47 @@ ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.article_views ENABLE ROW LEVEL SECURITY;
 
 -- 1. Profiles Policies
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.profiles;
 CREATE POLICY "Public profiles are viewable by everyone." 
 ON public.profiles FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
 CREATE POLICY "Users can insert their own profile." 
 ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update own profile or admins can update any." ON public.profiles;
 CREATE POLICY "Users can update own profile or admins can update any." 
 ON public.profiles FOR UPDATE USING (
     auth.uid() = id OR 
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
--- 2. Categories Policies (Public read, admin/editor write)
+-- 2. Categories Policies
+DROP POLICY IF EXISTS "Categories are readable by everyone" ON public.categories;
 CREATE POLICY "Categories are readable by everyone"
 ON public.categories FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Categories writable by admin/editor" ON public.categories;
 CREATE POLICY "Categories writable by admin/editor"
 ON public.categories FOR ALL USING (
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'editor'))
 );
 
--- 3. Articles Policies (Public can read published articles, staff can read all)
+-- 3. Articles Policies
+DROP POLICY IF EXISTS "Published articles are readable by everyone" ON public.articles;
 CREATE POLICY "Published articles are readable by everyone"
 ON public.articles FOR SELECT USING (
     status = 'published' OR 
     (auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid()))
 );
 
+DROP POLICY IF EXISTS "Staff can insert articles" ON public.articles;
 CREATE POLICY "Staff can insert articles"
 ON public.articles FOR INSERT WITH CHECK (
     auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid())
 );
 
+DROP POLICY IF EXISTS "Staff can update articles" ON public.articles;
 CREATE POLICY "Staff can update articles"
 ON public.articles FOR UPDATE USING (
     auth.uid() IS NOT NULL AND (
@@ -229,31 +236,38 @@ ON public.articles FOR UPDATE USING (
     )
 );
 
+DROP POLICY IF EXISTS "Admin and editors can delete articles" ON public.articles;
 CREATE POLICY "Admin and editors can delete articles"
 ON public.articles FOR DELETE USING (
     auth.uid() IS NOT NULL AND EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'editor'))
 );
 
--- 4. Newsletter Subscribers Policies (Anyone can insert, admin can view)
+-- 4. Newsletter Subscribers Policies
+DROP POLICY IF EXISTS "Anyone can subscribe to newsletter" ON public.newsletter_subscribers;
 CREATE POLICY "Anyone can subscribe to newsletter"
 ON public.newsletter_subscribers FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins can view newsletter subscribers" ON public.newsletter_subscribers;
 CREATE POLICY "Admins can view newsletter subscribers"
 ON public.newsletter_subscribers FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
 -- 5. Comments Policies
+DROP POLICY IF EXISTS "Approved comments readable by everyone" ON public.comments;
 CREATE POLICY "Approved comments readable by everyone"
 ON public.comments FOR SELECT USING (is_approved = true OR auth.uid() IS NOT NULL);
 
+DROP POLICY IF EXISTS "Anyone can submit comments" ON public.comments;
 CREATE POLICY "Anyone can submit comments"
 ON public.comments FOR INSERT WITH CHECK (true);
 
 -- 6. Settings Policies
+DROP POLICY IF EXISTS "Settings are viewable by everyone" ON public.site_settings;
 CREATE POLICY "Settings are viewable by everyone"
 ON public.site_settings FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Only admins can update settings" ON public.site_settings;
 CREATE POLICY "Only admins can update settings"
 ON public.site_settings FOR UPDATE USING (
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
@@ -275,6 +289,6 @@ INSERT INTO public.categories (name, slug, description, icon, order_index) VALUE
 ('منوعات', 'variety', 'أخبار خفيفة، طرائف واكتشافات حول العالم', 'Sparkles', 9)
 ON CONFLICT (slug) DO NOTHING;
 
-INSERT INTO public.site_settings (site_name, site_description, facebook_url) VALUES
-('صدى - منصة إخبارية رقمية متكاملة', 'منصة إخبارية تونسية وعربية مستقلة تنقل الخبر بمصداقية وعمق على مدار الساعة.', 'https://www.facebook.com/profile.php?id=61584651215444')
-ON CONFLICT DO NOTHING;
+INSERT INTO public.site_settings (id, site_name, site_description, facebook_url) VALUES
+('00000000-0000-0000-0000-000000000001', 'صدى - منصة إخبارية رقمية متكاملة', 'منصة إخبارية تونسية وعربية مستقلة تنقل الخبر بمصداقية وعمق على مدار الساعة.', 'https://www.facebook.com/profile.php?id=61584651215444')
+ON CONFLICT (id) DO NOTHING;
