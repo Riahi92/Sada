@@ -273,7 +273,7 @@ export default function Header({
 
               {/* Navigation list */}
               <div className="py-4 space-y-1">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">أقسام موقع قناة صدى الرقمية</span>
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">أقسام صدى الرقمية</span>
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
@@ -320,7 +320,7 @@ export default function Header({
               <div className="flex items-center justify-center gap-3 pt-2 text-gray-600">
                 <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#1877f2]" title="صفحتنا على فيسبوك"><Facebook className="w-4 h-4" /></a>
                 <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-black" title="إكس"><Twitter className="w-4 h-4" /></a>
-                <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-600" title="قناة صدى الرقمية على يوتيوب"><Youtube className="w-4 h-4" /></a>
+                <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-600" title="صدى الرقمية على يوتيوب"><Youtube className="w-4 h-4" /></a>
                 <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-600" title="إنستغرام"><Instagram className="w-4 h-4" /></a>
               </div>
             </div>

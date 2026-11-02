@@ -143,7 +143,7 @@ export default function ThematicCategoriesSection({ articles }: ThematicCategori
       <div className="flex items-center justify-between border-b-2 border-[#d0121a] pb-2">
         <h2 className="text-xl font-black text-gray-900 flex items-center gap-2 font-heading">
           <span className="w-3 h-6 bg-[#d0121a] rounded-sm"></span>
-          <span>أقسام موقع قناة صدى الرقمية (10 أقسام رئيسية)</span>
+          <span>أقسام صدى الرقمية (10 أقسام رئيسية)</span>
         </h2>
         <Link 
           href="/news" 

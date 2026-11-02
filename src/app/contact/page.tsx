@@ -88,7 +88,7 @@ export default function ContactPage() {
           <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-center">
             <Youtube className="w-8 h-8 text-red-600 mx-auto mb-2 fill-red-600" />
             <h3 className="font-heading font-bold text-base text-brand-navy mb-1">
-              قناة صدى الرقمية على يوتيوب
+              صدى الرقمية على يوتيوب
             </h3>
             <p className="text-xs text-gray-600 mb-3">
               شاهد تقاريرنا وتغطياتنا المرئية الحصرية واشترك لمتابعة الجديد
@@ -100,7 +100,7 @@ export default function ContactPage() {
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-bold transition shadow-sm"
             >
               <Youtube className="w-4 h-4 fill-white" />
-              <span>زيارة القناة والاشتراك</span>
+              <span>متابعة والاشتراك</span>
             </a>
           </div>
         </div>

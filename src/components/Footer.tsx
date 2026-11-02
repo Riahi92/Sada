@@ -74,7 +74,7 @@ export default function Footer({ categories, settings }: FooterProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
-                title="قناة صدى الرقمية على يوتيوب"
+                title="صدى الرقمية على يوتيوب"
               >
                 <Youtube className="w-3.5 h-3.5" />
               </a>

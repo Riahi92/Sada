@@ -47,7 +47,7 @@ export default function VideoSection({
               فيديو صدى | تغطيات مرئية
             </h2>
             <span className="text-xs text-gray-300 block">
-              تقارير مصورة وفيديوهات حصرية من «قناة صدى الرقمية»
+              تقارير مصورة وفيديوهات حصرية من «صدى الرقمية»
             </span>
           </div>
         </div>
@@ -57,10 +57,10 @@ export default function VideoSection({
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-[#d9232d] hover:bg-[#b01c24] text-white text-xs font-bold px-4 py-2 rounded-full transition shadow-sm w-fit"
-          title="قناة صدى الرقمية على يوتيوب"
+          title="صدى الرقمية على يوتيوب"
         >
           <Youtube className="w-4 h-4 fill-white" />
-          <span>قناة صدى الرقمية على يوتيوب</span>
+          <span>صدى الرقمية على يوتيوب</span>
           <ExternalLink className="w-3 h-3 text-red-200" />
         </a>
       </div>

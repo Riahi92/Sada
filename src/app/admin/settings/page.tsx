@@ -176,7 +176,7 @@ export default function AdminSettingsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">رابط قناة يوتيوب</label>
+              <label className="block text-xs font-bold text-gray-700 mb-1">رابط يوتيوب صدى الرقمية</label>
               <input
                 type="url"
                 value={settings.youtube_url}
