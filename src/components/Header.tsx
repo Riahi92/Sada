@@ -167,42 +167,51 @@ export default function Header({
         {/* Background Panoramic Landscape with Tunisian Flag on the left & Mediterranean coast */}
         <div 
           className="absolute inset-0 bg-cover bg-left bg-no-repeat"
-          style={{ backgroundImage: `url('/images/header-cover.jpg')` }}
+          style={{ backgroundImage: `url('/images/tunisia-panorama.jpg')` }}
         />
 
-        {/* Dynamic Curved Vector Badge on the Right for Sada Digital */}
-        <div className="relative max-w-7xl mx-auto h-full flex items-center justify-between px-3 sm:px-6 pointer-events-none">
-          {/* Spacer so Tunisian Flag on the left is unobstructed */}
-          <div className="flex-1" />
-
-          {/* Right curved brand badge */}
+        {/* Dynamic Curved Vector Badge on the Right */}
+        <div className="absolute top-0 bottom-0 right-0 flex items-center pr-3 sm:pr-6 md:pr-10 pl-6 sm:pl-10 md:pl-14 bg-white/95 backdrop-blur-xs rounded-l-[36px] sm:rounded-l-[55px] md:rounded-l-[70px] border-l-4 border-[#d0121a] shadow-sm z-10">
           <Link 
             href="/" 
-            className="pointer-events-auto flex items-center gap-2.5 sm:gap-4 bg-white/95 backdrop-blur-xs py-2 sm:py-2.5 px-4 sm:px-7 md:px-9 rounded-l-[36px] sm:rounded-l-[55px] md:rounded-l-[70px] border-l-4 border-[#d0121a] shadow-sm hover:opacity-95 transition"
+            className="flex items-center gap-2 sm:gap-3.5 hover:opacity-95 transition"
             title="صدى الرقمية - الصفحة الرئيسية"
           >
-            <div className="text-right">
-              <span className="block text-xl sm:text-2xl md:text-3xl font-extrabold text-[#d0121a] tracking-tight font-tajawal leading-tight">
-                صدى الرقمية
-              </span>
-              <span className="block text-[10px] sm:text-xs font-bold text-gray-800 tracking-wider font-tajawal">
-                SADA DIGITAL
-              </span>
-              <span className="block text-[9px] sm:text-[10.5px] text-gray-500 font-medium font-tajawal mt-0.5 whitespace-nowrap">
-                أخبار دقيقة .. وتحليل أعمق
-              </span>
+            {/* 1. Official Globe (on the far right in RTL) */}
+            <div className="relative h-11 w-11 sm:h-13 sm:w-13 md:h-15 md:w-15 shrink-0">
+              <Image
+                src="/images/globe.png"
+                alt="مجسم الكرة الأرضية"
+                fill
+                priority
+                sizes="64px"
+                className="object-contain"
+              />
             </div>
 
-            {/* Official Sada 3D Globe Logo */}
-            <div className="relative h-11 w-11 sm:h-14 sm:w-14 md:h-16 md:w-16 shrink-0">
+            {/* 2. Logo right next to the globe (logo a droite a coté du globe) */}
+            <div className="relative h-8 w-20 sm:h-10 sm:w-24 md:h-12 md:w-28 shrink-0">
               <Image
                 src="/images/logo.png"
                 alt="شعار صدى الرقمية"
                 fill
                 priority
-                sizes="64px"
-                className="object-contain drop-shadow-xs"
+                sizes="128px"
+                className="object-contain"
               />
+            </div>
+
+            {/* 3. Text block to the left */}
+            <div className="text-right">
+              <span className="block text-base sm:text-xl md:text-2xl font-extrabold text-[#d0121a] tracking-tight font-tajawal leading-tight whitespace-nowrap">
+                صدى الرقمية
+              </span>
+              <span className="block text-[8.5px] sm:text-[10px] font-bold text-gray-800 tracking-wider font-tajawal">
+                SADA DIGITAL
+              </span>
+              <span className="block text-[7.5px] sm:text-[9.5px] text-gray-500 font-medium font-tajawal mt-0.5 whitespace-nowrap hidden sm:block">
+                أخبار دقيقة .. وتحليل أعمق
+              </span>
             </div>
           </Link>
         </div>

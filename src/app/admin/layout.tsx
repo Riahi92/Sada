@@ -89,10 +89,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {/* User profile snippet */}
           <div className="p-4 mx-3 my-3 bg-brand-navyLight/50 rounded-lg border border-white/5 flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-brand-red text-white font-bold flex items-center justify-center">
-              م
+              ش
             </div>
             <div className="overflow-hidden">
-              <span className="block text-xs font-bold text-white truncate">مروان الرياحي</span>
+              <span className="block text-xs font-bold text-white truncate">شيماء اسماعيلي</span>
               <span className="text-[10px] text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded font-mono">
                 مدير النظام (Admin)
               </span>

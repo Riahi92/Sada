@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       authenticated = true;
       userData = {
         email: defaultAdminEmail,
-        name: 'مروان الرياحي (رئيس التحرير)',
+        name: 'شيماء اسماعيلي (رئيسة التحرير)',
         role: 'admin',
       };
     }

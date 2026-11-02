@@ -97,7 +97,7 @@ export const initialAuthors: Profile[] = [
   {
     id: "author-1",
     email: "editor@sada.tn",
-    full_name: "مروان الرياحي",
+    full_name: "شيماء اسماعيلي",
     avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
     role: "admin",
     created_at: "2026-01-01T00:00:00Z",
