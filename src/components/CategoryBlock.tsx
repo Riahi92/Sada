@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Clock } from 'lucide-react';
 import { Article, Category } from '@/types/database';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface CategoryBlockProps {
   category: Category;
@@ -19,8 +20,8 @@ export default function CategoryBlock({ category, articles }: CategoryBlockProps
     <div className="bg-white rounded-lg border border-brand-border p-5 shadow-sm">
       {/* Category Header */}
       <div className="flex items-center justify-between pb-3 border-b-2 border-brand-navy mb-5">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-5 bg-brand-red rounded-sm"></span>
+        <div className="flex items-center gap-2.5">
+          <CategoryIcon slug={category.slug} icon={category.icon} showBadge className="w-4 h-4 shrink-0" />
           <h3 className="font-heading font-black text-xl text-brand-navy">
             {category.name}
           </h3>

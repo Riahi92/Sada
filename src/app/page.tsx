@@ -38,10 +38,11 @@ export default async function HomePage() {
   // Group some articles by category for category blocks
   const tunisiaArticles = latestArticles.filter(a => a.category?.slug === 'tunisia');
   const economyArticles = latestArticles.filter(a => a.category?.slug === 'economy');
-  const sportsArticles = latestArticles.filter(a => a.category?.slug === 'sports');
+  const incidentsArticles = latestArticles.filter(a => a.category?.slug === 'incidents');
 
   const tunisiaCategory = categories.find(c => c.slug === 'tunisia') || categories[0];
-  const economyCategory = categories.find(c => c.slug === 'economy') || categories[3];
+  const economyCategory = categories.find(c => c.slug === 'economy') || categories[2];
+  const incidentsCategory = categories.find(c => c.slug === 'incidents') || categories[4];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
@@ -82,6 +83,14 @@ export default async function HomePage() {
             <CategoryBlock
               category={economyCategory}
               articles={economyArticles.length > 0 ? economyArticles : latestArticles.slice(2, 6)}
+            />
+          )}
+
+          {/* Category Highlight 3: Incidents & Justice */}
+          {incidentsCategory && incidentsArticles.length > 0 && (
+            <CategoryBlock
+              category={incidentsCategory}
+              articles={incidentsArticles}
             />
           )}
         </div>
@@ -129,7 +138,7 @@ export default async function HomePage() {
 
       {/* 5. Video Showcase Section */}
       {videoArticles.length > 0 && (
-        <VideoSection articles={videoArticles} />
+        <VideoSection articles={videoArticles} youtubeUrl={settings.youtube_url} />
       )}
     </div>
   );

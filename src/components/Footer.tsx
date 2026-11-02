@@ -15,6 +15,7 @@ import {
   Send
 } from 'lucide-react';
 import { Category, SiteSettings } from '@/types/database';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface FooterProps {
   categories: Category[];
@@ -24,6 +25,7 @@ interface FooterProps {
 export default function Footer({ categories, settings }: FooterProps) {
   const currentYear = new Date().getFullYear();
   const facebookUrl = settings?.facebook_url || 'https://www.facebook.com/profile.php?id=61584651215444';
+  const youtubeUrl = settings?.youtube_url || 'https://www.youtube.com/@chaînenumériquesSada';
 
   return (
     <footer className="bg-[#051838] text-slate-300 border-t-4 border-[#d0121a] mt-16 pt-10 pb-6 text-sm font-tajawal" data-purpose="site-footer">
@@ -68,11 +70,11 @@ export default function Footer({ categories, settings }: FooterProps) {
                 <Twitter className="w-3.5 h-3.5" />
               </a>
               <a
-                href="https://youtube.com"
+                href={youtubeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
-                title="يوتيوب"
+                title="قناة صدى الرقمية على يوتيوب"
               >
                 <Youtube className="w-3.5 h-3.5" />
               </a>
@@ -91,17 +93,17 @@ export default function Footer({ categories, settings }: FooterProps) {
           {/* Column 2: Sections */}
           <div>
             <h4 className="text-white font-bold text-sm mb-4 border-r-2 border-[#d0121a] pr-2 font-heading">
-              أقسام الموقع
+              أقسام الموقع (10 أقسام)
             </h4>
-            <ul className="space-y-2 text-xs text-slate-400">
-              {categories.slice(0, 6).map((cat) => (
+            <ul className="grid grid-cols-2 gap-x-2 gap-y-2 text-xs text-slate-400">
+              {categories.map((cat) => (
                 <li key={cat.id}>
                   <Link
                     href={`/category/${cat.slug}`}
-                    className="hover:text-white transition flex items-center gap-1.5"
+                    className="hover:text-white transition flex items-center gap-1.5 py-0.5 group"
                   >
-                    <ChevronLeft className="w-3 h-3 text-[#d0121a]" />
-                    <span>{cat.name}</span>
+                    <CategoryIcon slug={cat.slug} icon={cat.icon} className="w-3 h-3 text-[#d0121a] group-hover:scale-110 transition shrink-0" />
+                    <span className="truncate">{cat.name}</span>
                   </Link>
                 </li>
               ))}

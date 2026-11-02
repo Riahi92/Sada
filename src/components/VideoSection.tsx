@@ -2,14 +2,18 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Play, X } from 'lucide-react';
+import { Play, X, Youtube, ExternalLink } from 'lucide-react';
 import { Article } from '@/types/database';
 
 interface VideoSectionProps {
   articles: Article[];
+  youtubeUrl?: string;
 }
 
-export default function VideoSection({ articles }: VideoSectionProps) {
+export default function VideoSection({ 
+  articles, 
+  youtubeUrl = 'https://www.youtube.com/@chaînenumériquesSada' 
+}: VideoSectionProps) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
   if (!articles || articles.length === 0) return null;
@@ -20,30 +24,54 @@ export default function VideoSection({ articles }: VideoSectionProps) {
     return match ? match[1] : null;
   };
 
+  const handleVideoClick = (item: Article) => {
+    const ytId = extractYoutubeId(item.video_url);
+    if (ytId) {
+      setActiveVideo(ytId);
+    } else if (item.video_url) {
+      window.open(item.video_url, '_blank', 'noopener,noreferrer');
+    } else {
+      window.open(youtubeUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
-    <section className="py-8 bg-brand-navy text-white rounded-xl my-8 p-6 md:p-8">
-      <div className="flex items-center justify-between pb-4 border-b border-brand-navyLight mb-6">
+    <section className="py-8 bg-brand-navy text-white rounded-xl my-8 p-6 md:p-8" id="videos">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-brand-navyLight mb-6 gap-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-brand-red flex items-center justify-center">
             <Play className="w-4 h-4 text-white fill-white ml-0.5" />
           </div>
-          <h2 className="font-heading font-black text-2xl text-white">
-            فيديو صدى | تغطيات مرئية
-          </h2>
+          <div>
+            <h2 className="font-heading font-black text-2xl text-white">
+              فيديو صدى | تغطيات مرئية
+            </h2>
+            <span className="text-xs text-gray-300 block">
+              تقارير مصورة وفيديوهات حصرية من «قناة صدى الرقمية»
+            </span>
+          </div>
         </div>
-        <span className="text-xs text-gray-300">
-          تقارير مصورة وفيديوهات حصرية
-        </span>
+
+        <a
+          href={youtubeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 bg-[#d9232d] hover:bg-[#b01c24] text-white text-xs font-bold px-4 py-2 rounded-full transition shadow-sm w-fit"
+          title="قناة صدى الرقمية على يوتيوب"
+        >
+          <Youtube className="w-4 h-4 fill-white" />
+          <span>قناة صدى الرقمية على يوتيوب</span>
+          <ExternalLink className="w-3 h-3 text-red-200" />
+        </a>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {articles.map((item) => {
-          const ytId = extractYoutubeId(item.video_url);
           return (
             <div
               key={item.id}
               className="group cursor-pointer"
-              onClick={() => setActiveVideo(ytId || 'dQw4w9WgXcQ')}
+              onClick={() => handleVideoClick(item)}
             >
               <div className="relative aspect-video rounded-lg overflow-hidden bg-brand-navyDark mb-3 border border-brand-navyLight group-hover:border-brand-red transition">
                 <Image

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getArticles, getCategories } from '@/lib/db';
 import { Clock, Eye, Filter } from 'lucide-react';
+import CategoryIcon from '@/components/CategoryIcon';
 
 export const metadata: Metadata = {
   title: 'آخر الأخبار والتقارير الشاملة',
@@ -91,11 +92,12 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
           <Link
             key={cat.id}
             href={`/news?category=${cat.slug}&sortBy=${sortBy}`}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition ${
               categorySlug === cat.slug ? 'bg-brand-red text-white' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'
             }`}
           >
-            {cat.name}
+            <CategoryIcon slug={cat.slug} icon={cat.icon} className={`w-3.5 h-3.5 ${categorySlug === cat.slug ? 'text-white' : 'text-[#d0121a]'}`} />
+            <span>{cat.name}</span>
           </Link>
         ))}
       </div>
@@ -125,8 +127,9 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                     className="object-cover group-hover:scale-105 transition duration-300"
                   />
                   {article.category && (
-                    <span className="absolute top-3 right-3 bg-brand-navy/90 text-white text-[11px] font-bold px-2.5 py-1 rounded shadow">
-                      {article.category.name}
+                    <span className="inline-flex items-center gap-1 absolute top-3 right-3 bg-brand-navy/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow backdrop-blur-xs">
+                      <CategoryIcon slug={article.category.slug} icon={article.category.icon} className="w-3 h-3 text-red-400" />
+                      <span>{article.category.name}</span>
                     </span>
                   )}
                 </div>

@@ -4,7 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getCategoryBySlug, getArticles, getCategories } from '@/lib/db';
-import { Clock, Eye, Folder } from 'lucide-react';
+import { Clock, Eye } from 'lucide-react';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -54,10 +55,15 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       {/* Category Header */}
       <div className="bg-white rounded-xl border border-brand-border p-6 md:p-8 mb-8 shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl bg-brand-navy text-white flex items-center justify-center font-bold text-2xl shadow">
-            <Folder className="w-7 h-7 text-brand-red" />
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#0F1E36] to-[#08285c] text-white flex items-center justify-center font-bold text-2xl shadow-md border border-blue-900/40 shrink-0">
+            <CategoryIcon slug={category.slug} icon={category.icon} className="w-7 h-7 text-[#d0121a]" />
           </div>
           <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-bold text-brand-red uppercase tracking-wider bg-red-50 px-2.5 py-0.5 rounded-full">
+                قسم إخباري
+              </span>
+            </div>
             <h1 className="font-heading font-black text-2xl md:text-3xl text-brand-navy">
               {category.name}
             </h1>

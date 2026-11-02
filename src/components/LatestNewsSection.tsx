@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Clock, Eye, ChevronDown } from 'lucide-react';
 import { Article } from '@/types/database';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface LatestNewsSectionProps {
   initialArticles: Article[];
@@ -53,9 +54,10 @@ export default function LatestNewsSection({ initialArticles }: LatestNewsSection
                 {article.category && (
                   <Link
                     href={`/category/${article.category.slug}`}
-                    className="absolute top-3 right-3 bg-brand-navy/90 text-white text-[11px] font-bold px-2.5 py-1 rounded shadow hover:bg-brand-red transition"
+                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-brand-navy/90 hover:bg-brand-red text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow transition backdrop-blur-xs"
                   >
-                    {article.category.name}
+                    <CategoryIcon slug={article.category.slug} icon={article.category.icon} className="w-3 h-3 text-red-400 group-hover:text-white" />
+                    <span>{article.category.name}</span>
                   </Link>
                 )}
               </div>

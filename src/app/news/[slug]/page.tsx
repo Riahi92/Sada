@@ -7,6 +7,7 @@ import ArticleReader from '@/components/ArticleReader';
 import TrendingSection from '@/components/TrendingSection';
 import { getArticleBySlug, getRelatedArticles, getTrendingArticles } from '@/lib/db';
 import { Clock, Eye, Share2, Tag, ArrowRight, Folder } from 'lucide-react';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -118,9 +119,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           {article.category && (
             <Link
               href={`/category/${article.category.slug}`}
-              className="inline-block bg-brand-red text-white text-xs font-bold px-3 py-1 rounded mb-3 hover:bg-brand-redDark transition"
+              className="inline-flex items-center gap-1.5 bg-brand-red text-white text-xs font-bold px-3 py-1 rounded-full mb-3 hover:bg-brand-redDark transition shadow-sm"
             >
-              {article.category.name}
+              <CategoryIcon slug={article.category.slug} icon={article.category.icon} className="w-3.5 h-3.5" />
+              <span>{article.category.name}</span>
             </Link>
           )}
           <h1 className="font-heading font-black text-2xl md:text-3xl lg:text-4xl text-brand-navy leading-snug mb-4">

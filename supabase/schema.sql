@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
     facebook_url TEXT DEFAULT 'https://www.facebook.com/profile.php?id=61584651215444',
     instagram_url TEXT DEFAULT 'https://instagram.com',
     twitter_url TEXT DEFAULT 'https://x.com',
-    youtube_url TEXT DEFAULT 'https://youtube.com',
+    youtube_url TEXT DEFAULT 'https://www.youtube.com/@chaînenumériquesSada',
     breaking_ticker_enabled BOOLEAN DEFAULT TRUE NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
@@ -263,17 +263,18 @@ CREATE POLICY "Views readable by everyone" ON public.article_views FOR SELECT US
 -- ========================================================
 
 INSERT INTO public.categories (name, slug, description, icon, order_index) VALUES
-('أخبار تونس', 'tunisia', 'أحدث الأخبار الوطنية والمحلية في تونس', 'Flag', 1),
-('أخبار العالم', 'world', 'متابعات حصرية للأحداث الدولية والعالمية', 'Globe', 2),
-('السياسة', 'politics', 'تحليلات وتقارير سياسية شاملة', 'Building2', 3),
-('الاقتصاد', 'economy', 'أسواق المال، المؤشرات الاقتصادية والشركات', 'TrendingUp', 4),
-('الرياضة', 'sports', 'كرة القدم والرياضات الوطنية والدولية', 'Trophy', 5),
-('التكنولوجيا', 'technology', 'الذكاء الاصطناعي، الأجهزة والابتكارات الرقمية', 'Cpu', 6),
-('المجتمع', 'society', 'قضايا المجتمع، التعليم، والصحة والبيئة', 'Users', 7),
-('الثقافة والفن', 'culture', 'الأدب، السينما، المسرح والمعارض الفنية', 'Palette', 8),
-('منوعات', 'variety', 'أخبار خفيفة، طرائف واكتشافات حول العالم', 'Sparkles', 9)
+('أخبار تونس', 'tunisia', 'أحدث الأخبار الوطنية والمحلية في تونس على مدار الساعة', 'Landmark', 1),
+('أخبار العالم', 'world', 'متابعات دقيقة لأهم الأحداث والتطورات الدولية والإقليمية', 'Globe', 2),
+('اقتصاد', 'economy', 'أسواق المال، المؤشرات المالية، الاستثمار وريادة الأعمال', 'TrendingUp', 3),
+('مجتمع', 'society', 'قضايا المجتمع، الأسرة، التربية والتنمية المجتمعية', 'Users', 4),
+('حوادث وقضايا', 'incidents', 'متابعات الشأن القضائي، المستجدات الأمنية والحوادث اليومية', 'Scale', 5),
+('ثقافة وفنون', 'culture', 'إصدارات الكتب، المعارض الفنية، السينما، المسرح والمهرجانات', 'Palette', 6),
+('رياضة', 'sports', 'تغطية شاملة للدوري التونسي والبطولات العالمية والأوروبية', 'Trophy', 7),
+('تكنولوجيا والذكاء الاصطناعي', 'technology', 'أحدث ابتكارات الذكاء الاصطناعي، الأمن الرقمي، والحوسبة السحابية', 'Cpu', 8),
+('الصحة', 'health', 'أخبار الطب، الرعاية الصحية، التغذية السليمة، وجودة الحياة', 'HeartPulse', 9),
+('منوعات', 'variety', 'قصص ملهمة، طرائف واكتشافات علمية مشوقة من حول العالم', 'Sparkles', 10)
 ON CONFLICT (slug) DO NOTHING;
 
-INSERT INTO public.site_settings (id, site_name, site_description, facebook_url) VALUES
-('00000000-0000-0000-0000-000000000001', 'صدى - منصة إخبارية رقمية متكاملة', 'منصة إخبارية تونسية وعربية مستقلة تنقل الخبر بمصداقية وعمق على مدار الساعة.', 'https://www.facebook.com/profile.php?id=61584651215444')
+INSERT INTO public.site_settings (id, site_name, site_description, facebook_url, youtube_url) VALUES
+('00000000-0000-0000-0000-000000000001', 'صدى - منصة إخبارية رقمية متكاملة', 'منصة إخبارية تونسية وعربية مستقلة تنقل الخبر بمصداقية وعمق على مدار الساعة.', 'https://www.facebook.com/profile.php?id=61584651215444', 'https://www.youtube.com/@chaînenumériquesSada')
 ON CONFLICT (id) DO NOTHING;

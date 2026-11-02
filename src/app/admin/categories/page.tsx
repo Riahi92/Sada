@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Folder, Check, AlertCircle, Save, RefreshCw, Sparkles } from 'lucide-react';
 import { Category } from '@/types/database';
+import CategoryIcon from '@/components/CategoryIcon';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -305,7 +306,10 @@ export default function AdminCategoriesPage() {
                   {categories.map((cat) => (
                     <tr key={cat.id} className="hover:bg-gray-50 transition">
                       <td className="py-3 px-4 font-bold text-brand-navy">
-                        {cat.name}
+                        <div className="flex items-center gap-2">
+                          <CategoryIcon slug={cat.slug} icon={cat.icon} showBadge className="w-3.5 h-3.5" />
+                          <span>{cat.name}</span>
+                        </div>
                       </td>
                       <td className="py-3 px-4 font-mono text-gray-500">
                         {cat.slug}

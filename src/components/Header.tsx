@@ -19,13 +19,19 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { Category } from '@/types/database';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface HeaderProps {
   categories: Category[];
   facebookUrl?: string;
+  youtubeUrl?: string;
 }
 
-export default function Header({ categories, facebookUrl = 'https://www.facebook.com/profile.php?id=61584651215444' }: HeaderProps) {
+export default function Header({ 
+  categories, 
+  facebookUrl = 'https://www.facebook.com/profile.php?id=61584651215444',
+  youtubeUrl = 'https://www.youtube.com/@chaînenumériquesSada'
+}: HeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,22 +100,63 @@ export default function Header({ categories, facebookUrl = 'https://www.facebook
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-4 text-sm font-semibold text-gray-800">
-              {navCategories.map((item) => {
-                const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            <nav className="hidden xl:flex items-center gap-3 text-sm font-semibold text-gray-800">
+              <Link
+                href="/"
+                className={`flex items-center gap-1.5 hover:text-[#d0121a] transition py-1 text-[13px] ${
+                  pathname === '/' ? 'text-[#d0121a] font-bold' : 'text-gray-800'
+                }`}
+              >
+                <span>الرئيسية</span>
+              </Link>
+
+              {categories.slice(0, 6).map((cat) => {
+                const isActive = pathname === `/category/${cat.slug}`;
                 return (
                   <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`flex items-center gap-1 hover:text-[#d0121a] transition py-1 text-[13px] ${
+                    key={cat.id}
+                    href={`/category/${cat.slug}`}
+                    className={`flex items-center gap-1.5 hover:text-[#d0121a] transition py-1 text-[13px] ${
                       isActive ? 'text-[#d0121a] font-bold' : 'text-gray-800'
                     }`}
                   >
-                    <span>{item.name}</span>
-                    {item.hasChevron && <ChevronDown className="w-3.5 h-3.5 text-gray-400" />}
+                    <CategoryIcon slug={cat.slug} icon={cat.icon} className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#d0121a]" />
+                    <span>{cat.name}</span>
                   </Link>
                 );
               })}
+
+              {categories.length > 6 && (
+                <div className="relative group">
+                  <button 
+                    type="button"
+                    className="flex items-center gap-1 hover:text-[#d0121a] transition py-1 text-[13px] text-gray-800 font-semibold cursor-pointer"
+                  >
+                    <span>المزيد</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#d0121a] transition" />
+                  </button>
+                  <div className="absolute right-0 top-full mt-1.5 w-60 bg-white border border-gray-100 shadow-xl rounded-xl py-2 hidden group-hover:block z-50 divide-y divide-gray-50">
+                    {categories.slice(6).map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/category/${cat.slug}`}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:text-[#d0121a] hover:bg-gray-50 transition"
+                      >
+                        <CategoryIcon slug={cat.slug} icon={cat.icon} showBadge className="w-3.5 h-3.5 shrink-0" />
+                        <span>{cat.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Link
+                href="/#videos"
+                className="flex items-center gap-1 text-[#d0121a] hover:text-[#a30c12] transition py-1 text-[13px] font-bold pr-2 border-r border-gray-200"
+              >
+                <Play className="w-3.5 h-3.5 fill-[#d0121a]" />
+                <span>فيديو</span>
+              </Link>
             </nav>
           </div>
 
@@ -174,7 +221,34 @@ export default function Header({ categories, facebookUrl = 'https://www.facebook
         </div>
       )}
 
-      {/* 3. Trending Capsule Sub-bar (Matched to the uploaded image) */}
+      {/* 3. Fast Categories Navigation Bar with Representative Icons */}
+      <div className="bg-slate-50/90 border-b border-gray-200/80 py-2 px-3 sm:px-6 overflow-x-auto no-scrollbar">
+        <div className="max-w-7xl mx-auto flex items-center justify-start lg:justify-center gap-1.5 sm:gap-2 text-xs whitespace-nowrap">
+          {categories.map((cat) => {
+            const isActive = pathname === `/category/${cat.slug}`;
+            return (
+              <Link
+                key={cat.id}
+                href={`/category/${cat.slug}`}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-bold transition shrink-0 ${
+                  isActive
+                    ? 'bg-[#d0121a] text-white shadow-sm'
+                    : 'bg-white text-gray-700 hover:text-[#d0121a] hover:bg-gray-100 border border-gray-200/80 shadow-2xs'
+                }`}
+              >
+                <CategoryIcon 
+                  slug={cat.slug} 
+                  icon={cat.icon} 
+                  className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-[#d0121a]'}`} 
+                />
+                <span>{cat.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. Trending Capsule Sub-bar (Matched to the uploaded image) */}
       <div className="bg-white py-2 px-4 border-b border-gray-100">
         <div className="max-w-4xl mx-auto bg-[#f8f9fa] border border-gray-200/80 rounded-full py-1 px-6 flex items-center justify-center gap-6 text-xs text-gray-700 shadow-sm overflow-x-auto no-scrollbar">
           <TrendingUp className="w-4 h-4 text-[#2563eb] shrink-0" />
@@ -190,7 +264,7 @@ export default function Header({ categories, facebookUrl = 'https://www.facebook
         </div>
       </div>
 
-      {/* 4. Full Slide-out Drawer */}
+      {/* 5. Full Slide-out Drawer */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 flex">
           {/* Backdrop */}
@@ -223,15 +297,23 @@ export default function Header({ categories, facebookUrl = 'https://www.facebook
 
               {/* Navigation list */}
               <div className="py-4 space-y-1">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">أقسام الموقع</span>
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">أقسام موقع قناة صدى الرقمية</span>
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}
                     onClick={() => setDrawerOpen(false)}
-                    className="block py-2 px-3 text-sm font-semibold text-gray-800 hover:text-[#d0121a] hover:bg-gray-50 rounded-lg transition"
+                    className="flex items-center justify-between py-2 px-2.5 text-xs font-bold text-gray-800 hover:text-[#d0121a] hover:bg-gray-50 rounded-lg transition group"
                   >
-                    {cat.name}
+                    <div className="flex items-center gap-2.5">
+                      <CategoryIcon slug={cat.slug} icon={cat.icon} showBadge className="w-3.5 h-3.5 shrink-0" />
+                      <span>{cat.name}</span>
+                    </div>
+                    {cat.article_count !== undefined && (
+                      <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full group-hover:bg-red-50 group-hover:text-red-600 transition">
+                        {cat.article_count}
+                      </span>
+                    )}
                   </Link>
                 ))}
               </div>
@@ -260,10 +342,10 @@ export default function Header({ categories, facebookUrl = 'https://www.facebook
               </Link>
 
               <div className="flex items-center justify-center gap-3 pt-2 text-gray-600">
-                <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#1877f2]"><Facebook className="w-4 h-4" /></a>
-                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-black"><Twitter className="w-4 h-4" /></a>
-                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-red-600"><Youtube className="w-4 h-4" /></a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-600"><Instagram className="w-4 h-4" /></a>
+                <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#1877f2]" title="صفحتنا على فيسبوك"><Facebook className="w-4 h-4" /></a>
+                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-black" title="إكس"><Twitter className="w-4 h-4" /></a>
+                <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-600" title="قناة صدى الرقمية على يوتيوب"><Youtube className="w-4 h-4" /></a>
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-600" title="إنستغرام"><Instagram className="w-4 h-4" /></a>
               </div>
             </div>
           </div>

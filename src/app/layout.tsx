@@ -73,7 +73,7 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className="min-h-screen flex flex-col bg-brand-canvas text-brand-text antialiased selection:bg-brand-red selection:text-white">
-        <Header categories={categories} facebookUrl={settings.facebook_url} />
+        <Header categories={categories} facebookUrl={settings.facebook_url} youtubeUrl={settings.youtube_url} />
         {settings.breaking_ticker_enabled && breakingArticles.length > 0 && (
           <BreakingTicker articles={breakingArticles} />
         )}

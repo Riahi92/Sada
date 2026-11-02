@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, Facebook, MessageSquare } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, Facebook, Youtube, MessageSquare } from 'lucide-react';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -81,6 +81,26 @@ export default function ContactPage() {
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold transition shadow-sm"
             >
               <span>مراسلتنا على فيسبوك</span>
+            </a>
+          </div>
+
+          {/* YouTube Channel Box */}
+          <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-center">
+            <Youtube className="w-8 h-8 text-red-600 mx-auto mb-2 fill-red-600" />
+            <h3 className="font-heading font-bold text-base text-brand-navy mb-1">
+              قناة صدى الرقمية على يوتيوب
+            </h3>
+            <p className="text-xs text-gray-600 mb-3">
+              شاهد تقاريرنا وتغطياتنا المرئية الحصرية واشترك لمتابعة الجديد
+            </p>
+            <a
+              href="https://www.youtube.com/@chaînenumériquesSada"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-bold transition shadow-sm"
+            >
+              <Youtube className="w-4 h-4 fill-white" />
+              <span>زيارة القناة والاشتراك</span>
             </a>
           </div>
         </div>

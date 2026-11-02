@@ -14,6 +14,7 @@ import {
   Tag
 } from 'lucide-react';
 import { Article } from '@/types/database';
+import CategoryIcon from '@/components/CategoryIcon';
 
 interface HeroSectionProps {
   mainArticle: Article | null;
@@ -168,8 +169,9 @@ export default function HeroSection({
             {/* Category Pill */}
             {currentSlide.category && (
               <div className="mb-2">
-                <span className="inline-block bg-[#d0121a] text-white text-xs font-bold px-3 py-1 rounded shadow">
-                  {currentSlide.category.name}
+                <span className="inline-flex items-center gap-1.5 bg-[#d0121a] text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+                  <CategoryIcon slug={currentSlide.category.slug} icon={currentSlide.category.icon} className="w-3.5 h-3.5" />
+                  <span>{currentSlide.category.name}</span>
                 </span>
               </div>
             )}
@@ -236,8 +238,9 @@ export default function HeroSection({
                     <span>{formatTime(item.published_at)}</span>
                   </span>
                   {item.category && (
-                    <span className="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.5 rounded font-medium">
-                      {item.category.name}
+                    <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[10px] px-2 py-0.5 rounded-full font-semibold">
+                      <CategoryIcon slug={item.category.slug} icon={item.category.icon} className="w-3 h-3 text-[#d0121a]" />
+                      <span>{item.category.name}</span>
                     </span>
                   )}
                 </div>
