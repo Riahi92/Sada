@@ -110,7 +110,7 @@ export default function Header({
                 <span>الرئيسية</span>
               </Link>
 
-              {categories.slice(0, 6).map((cat) => {
+              {categories.slice(0, 9).map((cat) => {
                 const isActive = pathname === `/category/${cat.slug}`;
                 return (
                   <Link
@@ -126,7 +126,7 @@ export default function Header({
                 );
               })}
 
-              {categories.length > 6 && (
+              {categories.length > 9 && (
                 <div className="relative group">
                   <button 
                     type="button"
@@ -136,7 +136,7 @@ export default function Header({
                     <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#d0121a] transition" />
                   </button>
                   <div className="absolute right-0 top-full mt-1.5 w-60 bg-white border border-gray-100 shadow-xl rounded-xl py-2 hidden group-hover:block z-50 divide-y divide-gray-50">
-                    {categories.slice(6).map((cat) => (
+                    {categories.slice(9).map((cat) => (
                       <Link
                         key={cat.id}
                         href={`/category/${cat.slug}`}

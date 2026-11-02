@@ -7,6 +7,7 @@ import {
   Scale, 
   Palette, 
   Trophy, 
+  Bot,
   Cpu, 
   HeartPulse, 
   Sparkles, 
@@ -32,7 +33,7 @@ export const getCategoryIconComponent = (slugOrIcon?: string): React.ComponentTy
   if (key === 'incidents' || key === 'crimes' || key === 'justice' || key === 'scale') return Scale;
   if (key === 'culture' || key === 'palette') return Palette;
   if (key === 'sports' || key === 'trophy') return Trophy;
-  if (key === 'technology' || key === 'tech-ai' || key === 'cpu' || key === 'bot') return Cpu;
+  if (key === 'technology' || key === 'tech-ai' || key === 'cpu' || key === 'bot') return Bot;
   if (key === 'health' || key === 'heartpulse' || key === 'heart-pulse') return HeartPulse;
   if (key === 'variety' || key === 'sparkles') return Sparkles;
   

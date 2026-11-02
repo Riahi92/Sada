@@ -385,6 +385,107 @@ export const initialArticles: Article[] = [
     category: initialCategories[4],
     author: initialAuthors[0],
   },
+  {
+    id: "art-11",
+    title: "ثورة نماذج الذكاء الاصطناعي التوليدي: كيف توظف الشركات التونسية الناشئة وكلاء AI في الخدمات المالية؟",
+    slug: "generative-ai-agents-tunisian-startups-financial-services",
+    excerpt: "طفرة متسارعة تشهدها المنظومة الريادية في تونس مع اعتماد وكلاء الذكاء الاصطناعي المستقلين لأتمتة خدمة العملاء والتحليلات الائتمانية الدقيقة.",
+    content: `
+      <p class="lead">أظهر تقرير حديث لقطاع التكنولوجيا التونسي تنامي اعتماد الشركات الناشئة على وكلاء الذكاء الاصطناعي التوليدي (Autonomous AI Agents) في تطوير حلول التكنولوجيا المالية (FinTech) والتأمين الذكي.</p>
+      <h2>كفاءة غير مسبوقة في معالجة البيانات</h2>
+      <p>تتيح الخوارزميات الجديدة التنبؤ بحركة الأسواق وتخصيص تجارب المستخدمين بدقة فائقة، مع الحفاظ على معايير السيادة الرقمية وخصوصية البيانات البنكية.</p>
+    `,
+    featured_image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&auto=format&fit=crop&q=80",
+    category_id: "cat-8",
+    author_id: "author-1",
+    status: "published",
+    is_featured: false,
+    is_breaking: false,
+    video_url: "https://www.youtube.com/@chaînenumériquesSada",
+    views_count: 9400,
+    meta_title: "وكلاء الذكاء الاصطناعي في الشركات التونسية | صدى التكنولوجيا",
+    meta_description: "كيف تعيد الشركات التونسية تشكيل القطاع المالي باستخدام الذكاء الاصطناعي التوليدي.",
+    published_at: "2026-11-02T10:00:00Z",
+    created_at: "2026-11-02T09:00:00Z",
+    updated_at: "2026-11-02T10:00:00Z",
+    category: initialCategories[7],
+    author: initialAuthors[0],
+  },
+  {
+    id: "art-12",
+    title: "الأمن السيبراني في زمن الذكاء الاصطناعي: استراتيجيات لحماية المؤسسات من التزييف العميق والهجمات الهجينة",
+    slug: "cybersecurity-ai-era-deepfake-protection-hybrid-attacks",
+    excerpt: "تحذيرات من تزايد الهجمات الإلكترونية المعتمدة على محاكاة الصوت والصورة بالذكاء الاصطناعي، وتوصيات بتحديث منظومات التحقق البيومتري متعدد الطبقات.",
+    content: `
+      <p class="lead">ناقش مؤتمر الأمن الرقمي السنوي المنعقد بتونس العاصمة التحديات المتصاعدة التي يفرضها التزييف العميق (Deepfake) على أمن المعاملات الرسمية والمؤسسات الحيوية.</p>
+      <h2>تقنيات الدفاع الاستباقي</h2>
+      <p>أوصى الخبراء بالاستثمار في نماذج الذكاء الاصطناعي المضادة للكشف المبكر عن التهديدات وتدريب الكوادر البشرية على تمييز التلاعب الرقمي.</p>
+    `,
+    featured_image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=1200&auto=format&fit=crop&q=80",
+    category_id: "cat-8",
+    author_id: "author-3",
+    status: "published",
+    is_featured: false,
+    is_breaking: false,
+    views_count: 8200,
+    meta_title: "الأمن السيبراني والتزييف العميق في زمن الذكاء الاصطناعي | صدى",
+    meta_description: "استراتيجيات الدفاع الرقمي الحديثة ضد التهديدات السيبرانية المدعومة بالذكاء الاصطناعي.",
+    published_at: "2026-11-02T08:30:00Z",
+    created_at: "2026-11-02T07:45:00Z",
+    updated_at: "2026-11-02T08:30:00Z",
+    category: initialCategories[7],
+    author: initialAuthors[2],
+  },
+  {
+    id: "art-13",
+    title: "دراسة طبية وقائية: النظام الغذائي المتوسطي والنشاط البدني المنتظم يقللان مخاطر أمراض القلب بنسبة 40%",
+    slug: "mediterranean-diet-physical-activity-heart-disease-prevention",
+    excerpt: "نتائج بحثية تؤكد الدور الحيوي للوجبات الغنية بزيت الزيتون والخضار الورقية وممارسة المشي اليومي في تعزيز صحة الشرايين وجودة الحياة.",
+    content: `
+      <p class="lead">أكدت دراسة طبية موسعة نُشرت نتائجها بالتعاون مع كليات الطب التونسية أن الالتزام بأسلوب الحياة المتوسطي يخفف بشكل ملموس من عبء الأمراض المزمنة وارتفاع ضغط الدم.</p>
+      <h2>نصائح الأطباء لصحة القلب</h2>
+      <p>يشدد الأطباء على أهمية الفحص الدوري للكوليسترول والسكر، والحرص على شرب كميات كافية من الماء والنوم المتوازن لدعم المناعة والنشاط العصبي.</p>
+    `,
+    featured_image: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=1200&auto=format&fit=crop&q=80",
+    category_id: "cat-9",
+    author_id: "author-2",
+    status: "published",
+    is_featured: false,
+    is_breaking: false,
+    views_count: 7600,
+    meta_title: "النظام المتوسطي والوقاية من أمراض القلب | صدى الصحة",
+    meta_description: "دراسة طبية تبين فوائد الغذاء الصحي والرياضة المنتظمة لصحة القلب والأوعية الدموية.",
+    published_at: "2026-11-02T09:15:00Z",
+    created_at: "2026-11-02T08:00:00Z",
+    updated_at: "2026-11-02T09:15:00Z",
+    category: initialCategories[8],
+    author: initialAuthors[1],
+  },
+  {
+    id: "art-14",
+    title: "وزارة الصحة تطلق الحملة الوطنية للتلقيح الموسمي وتدعم مخزون الأدوية الحيوية بالمراكز الأساسية",
+    slug: "tunisia-health-ministry-seasonal-vaccination-campaign-medicines",
+    excerpt: "توفير مئات الآلاف من جرعات التطعيم المجانية للفئات الهشة وكبار السن، مع خطة لوجستية لتسريع توزيع الأدوية الحياتية في المستشفيات الجهوية.",
+    content: `
+      <p class="lead">انطلقت في كافة ولايات الجمهورية الحملة السنوية للتلقيح ضد النزلات الوافدة، تزامناً مع تعزيز التجهيزات الطبية في مراكز الصحة الأساسية بالخط الأول.</p>
+      <h2>الرعاية الصحية الاستباقية</h2>
+      <p>تهدف الحملة إلى حماية أصحاب الأمراض المزمنة والنساء الحوامل من المضاعفات التنفسية مع اقتراب فصل الشتاء، وضمان توفر مخزون استراتيجي آمن من الأدوية الأساسية.</p>
+    `,
+    featured_image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=1200&auto=format&fit=crop&q=80",
+    category_id: "cat-9",
+    author_id: "author-2",
+    status: "published",
+    is_featured: false,
+    is_breaking: true,
+    views_count: 6850,
+    meta_title: "انطلاق الحملة الوطنية للتلقيح الموسمي | صدى الصحة",
+    meta_description: "تفاصيل حملة وزارة الصحة لتوفير اللقاحات وتدعيم المرافق الصحية بالأدوية الضرورية.",
+    published_at: "2026-11-02T11:00:00Z",
+    created_at: "2026-11-02T10:15:00Z",
+    updated_at: "2026-11-02T11:00:00Z",
+    category: initialCategories[8],
+    author: initialAuthors[1],
+  },
 ];
 
 export const initialSiteSettings: SiteSettings = {

@@ -39,10 +39,14 @@ export default async function HomePage() {
   const tunisiaArticles = latestArticles.filter(a => a.category?.slug === 'tunisia');
   const economyArticles = latestArticles.filter(a => a.category?.slug === 'economy');
   const incidentsArticles = latestArticles.filter(a => a.category?.slug === 'incidents');
+  const techArticles = latestArticles.filter(a => a.category?.slug === 'technology');
+  const healthArticles = latestArticles.filter(a => a.category?.slug === 'health');
 
   const tunisiaCategory = categories.find(c => c.slug === 'tunisia') || categories[0];
   const economyCategory = categories.find(c => c.slug === 'economy') || categories[2];
   const incidentsCategory = categories.find(c => c.slug === 'incidents') || categories[4];
+  const techCategory = categories.find(c => c.slug === 'technology') || categories[7];
+  const healthCategory = categories.find(c => c.slug === 'health') || categories[8];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
@@ -91,6 +95,22 @@ export default async function HomePage() {
             <CategoryBlock
               category={incidentsCategory}
               articles={incidentsArticles}
+            />
+          )}
+
+          {/* Category Highlight 4: Technology & Artificial Intelligence */}
+          {techCategory && (
+            <CategoryBlock
+              category={techCategory}
+              articles={techArticles.length > 0 ? techArticles : latestArticles.slice(0, 4)}
+            />
+          )}
+
+          {/* Category Highlight 5: Health & Medicine */}
+          {healthCategory && (
+            <CategoryBlock
+              category={healthCategory}
+              articles={healthArticles.length > 0 ? healthArticles : latestArticles.slice(1, 5)}
             />
           )}
         </div>
