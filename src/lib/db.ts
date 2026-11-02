@@ -40,27 +40,44 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
 
 export async function getCategories(): Promise<Category[]> {
   const supabase = createClient();
+  let dbCategories: Category[] = [];
   if (supabase) {
     try {
       const { data, error } = await supabase.from('categories').select('*').order('order_index', { ascending: true });
       if (!error && data && data.length > 0) {
-        return data;
+        dbCategories = data;
       }
     } catch {
       // ignore
     }
   }
 
-  // Calculate article count per category
-  return inMemoryCategories.map(cat => ({
-    ...cat,
-    article_count: inMemoryArticles.filter(a => a.category_id === cat.id && a.status === 'published').length,
-  }));
+  // If no DB categories, return all 10 official categories
+  if (dbCategories.length === 0) {
+    return inMemoryCategories.map(cat => ({
+      ...cat,
+      article_count: inMemoryArticles.filter(a => (a.category_id === cat.id || a.category?.slug === cat.slug) && a.status === 'published').length,
+    }));
+  }
+
+  // Ensure all 10 official categories are present even if Supabase DB had older seeds
+  return initialCategories.map(officialCat => {
+    const existing = dbCategories.find(c => c.slug === officialCat.slug);
+    const id = existing ? existing.id : officialCat.id;
+    return {
+      ...officialCat,
+      id,
+      name: officialCat.name,
+      icon: officialCat.icon || existing?.icon,
+      order_index: officialCat.order_index,
+      article_count: inMemoryArticles.filter(a => (a.category_id === id || a.category_id === officialCat.id || a.category?.slug === officialCat.slug) && a.status === 'published').length,
+    };
+  });
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   const cats = await getCategories();
-  return cats.find(c => c.slug === slug) || null;
+  return cats.find(c => c.slug === slug) || initialCategories.find(c => c.slug === slug) || null;
 }
 
 export interface GetArticlesParams {
@@ -97,9 +114,9 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
   if (categoryId) {
     filtered = filtered.filter(a => a.category_id === categoryId);
   } else if (categorySlug) {
-    const cat = inMemoryCategories.find(c => c.slug === categorySlug);
+    const cat = inMemoryCategories.find(c => c.slug === categorySlug) || initialCategories.find(c => c.slug === categorySlug);
     if (cat) {
-      filtered = filtered.filter(a => a.category_id === cat.id);
+      filtered = filtered.filter(a => a.category_id === cat.id || a.category?.slug === categorySlug);
     }
   }
 
@@ -133,7 +150,7 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
   // Populate category and author
   const articles = paginated.map(art => ({
     ...art,
-    category: inMemoryCategories.find(c => c.id === art.category_id),
+    category: inMemoryCategories.find(c => c.id === art.category_id) || initialCategories.find(c => c.id === art.category_id || c.slug === art.category?.slug) || art.category,
     author: inMemoryAuthors.find(au => au.id === art.author_id),
   }));
 

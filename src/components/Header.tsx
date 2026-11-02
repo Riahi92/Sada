@@ -100,7 +100,7 @@ export default function Header({
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-3 text-sm font-semibold text-gray-800">
+            <nav className="hidden xl:flex items-center gap-2.5 2xl:gap-3.5 text-sm font-semibold text-gray-800">
               <Link
                 href="/"
                 className={`flex items-center gap-1.5 hover:text-[#d0121a] transition py-1 text-[13px] ${
@@ -110,49 +110,25 @@ export default function Header({
                 <span>الرئيسية</span>
               </Link>
 
-              {categories.slice(0, 9).map((cat) => {
+              {categories.map((cat) => {
                 const isActive = pathname === `/category/${cat.slug}`;
                 return (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}
-                    className={`flex items-center gap-1.5 hover:text-[#d0121a] transition py-1 text-[13px] ${
+                    className={`flex items-center gap-1 hover:text-[#d0121a] transition py-1 text-[12.5px] 2xl:text-[13px] whitespace-nowrap ${
                       isActive ? 'text-[#d0121a] font-bold' : 'text-gray-800'
                     }`}
                   >
-                    <CategoryIcon slug={cat.slug} icon={cat.icon} className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#d0121a]" />
+                    <CategoryIcon slug={cat.slug} icon={cat.icon} className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#d0121a] shrink-0" />
                     <span>{cat.name}</span>
                   </Link>
                 );
               })}
 
-              {categories.length > 9 && (
-                <div className="relative group">
-                  <button 
-                    type="button"
-                    className="flex items-center gap-1 hover:text-[#d0121a] transition py-1 text-[13px] text-gray-800 font-semibold cursor-pointer"
-                  >
-                    <span>المزيد</span>
-                    <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#d0121a] transition" />
-                  </button>
-                  <div className="absolute right-0 top-full mt-1.5 w-60 bg-white border border-gray-100 shadow-xl rounded-xl py-2 hidden group-hover:block z-50 divide-y divide-gray-50">
-                    {categories.slice(9).map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={`/category/${cat.slug}`}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:text-[#d0121a] hover:bg-gray-50 transition"
-                      >
-                        <CategoryIcon slug={cat.slug} icon={cat.icon} showBadge className="w-3.5 h-3.5 shrink-0" />
-                        <span>{cat.name}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <Link
                 href="/#videos"
-                className="flex items-center gap-1 text-[#d0121a] hover:text-[#a30c12] transition py-1 text-[13px] font-bold pr-2 border-r border-gray-200"
+                className="flex items-center gap-1 text-[#d0121a] hover:text-[#a30c12] transition py-1 text-[13px] font-bold pr-2 border-r border-gray-200 shrink-0"
               >
                 <Play className="w-3.5 h-3.5 fill-[#d0121a]" />
                 <span>فيديو</span>
