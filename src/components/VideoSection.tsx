@@ -12,7 +12,7 @@ interface VideoSectionProps {
 
 export default function VideoSection({ 
   articles, 
-  youtubeUrl = 'https://www.youtube.com/@chaînenumériquesSada' 
+  youtubeUrl = 'https://www.youtube.com/@chainenumeriquessada' 
 }: VideoSectionProps) {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 

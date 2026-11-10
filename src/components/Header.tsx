@@ -12,10 +12,6 @@ import {
   Play, 
   User as UserIcon, 
   Search, 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Youtube,
   ShieldCheck,
   Calendar,
   Sun,
@@ -23,17 +19,24 @@ import {
 } from 'lucide-react';
 import { Category } from '@/types/database';
 import CategoryIcon from '@/components/CategoryIcon';
+import { WhatsAppIcon, SnapchatIcon, TikTokIcon, YouTubeIcon, FacebookIcon } from '@/components/SocialIcons';
 
 interface HeaderProps {
   categories: Category[];
   facebookUrl?: string;
   youtubeUrl?: string;
+  whatsappUrl?: string;
+  snapchatUrl?: string;
+  tiktokUrl?: string;
 }
 
 export default function Header({ 
   categories, 
   facebookUrl = 'https://www.facebook.com/profile.php?id=61584651215444',
-  youtubeUrl = 'https://www.youtube.com/@chaînenumériquesSada'
+  youtubeUrl = 'https://www.youtube.com/@chainenumeriquessada',
+  whatsappUrl = 'https://api.whatsapp.com/message/NNTKTGMOHR3UI1?autoload=1&app_absent=0',
+  snapchatUrl = 'https://www.snapchat.com/@chainesada?share_id=J8xO8av-uwM&locale=ar-AA',
+  tiktokUrl = 'https://www.tiktok.com/@chainenumeriquesada1?_r=1&_t=ZS-9B35HfgOYOk',
 }: HeaderProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,13 +92,40 @@ export default function Header({
           {/* Right Side: Social Media Channels */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <a 
+              href={whatsappUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-6 h-6 rounded-full bg-white/10 hover:bg-[#25D366] hover:text-white flex items-center justify-center transition" 
+              title="تواصل معنا عبر واتساب"
+            >
+              <WhatsAppIcon className="w-3.5 h-3.5" />
+            </a>
+            <a 
+              href={tiktokUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-6 h-6 rounded-full bg-white/10 hover:bg-black hover:text-white flex items-center justify-center transition" 
+              title="حساب صدى على تيك توك"
+            >
+              <TikTokIcon className="w-3.5 h-3.5" />
+            </a>
+            <a 
+              href={snapchatUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-6 h-6 rounded-full bg-white/10 hover:bg-[#FFFC00] hover:text-black flex items-center justify-center transition" 
+              title="حساب صدى على سناب شات"
+            >
+              <SnapchatIcon className="w-3.5 h-3.5" />
+            </a>
+            <a 
               href={youtubeUrl} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="w-6 h-6 rounded-full bg-white/10 hover:bg-[#ff0000] hover:text-white flex items-center justify-center transition" 
               title="قناة صدى الرقمية على يوتيوب"
             >
-              <Youtube className="w-3.5 h-3.5" />
+              <YouTubeIcon className="w-3.5 h-3.5" />
             </a>
             <a 
               href={facebookUrl} 
@@ -104,25 +134,7 @@ export default function Header({
               className="w-6 h-6 rounded-full bg-white/10 hover:bg-[#1877f2] hover:text-white flex items-center justify-center transition" 
               title="صفحة صدى على فيسبوك"
             >
-              <Facebook className="w-3.5 h-3.5" />
-            </a>
-            <a 
-              href="https://x.com" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-6 h-6 rounded-full bg-white/10 hover:bg-black hover:text-white flex items-center justify-center transition" 
-              title="إكس"
-            >
-              <Twitter className="w-3.5 h-3.5" />
-            </a>
-            <a 
-              href="https://instagram.com" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-6 h-6 rounded-full bg-white/10 hover:bg-[#e1306c] hover:text-white flex items-center justify-center transition" 
-              title="إنستغرام"
-            >
-              <Instagram className="w-3.5 h-3.5" />
+              <FacebookIcon className="w-3.5 h-3.5" />
             </a>
           </div>
 
@@ -422,10 +434,11 @@ export default function Header({
               </Link>
 
               <div className="flex items-center justify-center gap-3 pt-2 text-gray-600">
-                <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#1877f2]" title="صفحتنا على فيسبوك"><Facebook className="w-4 h-4" /></a>
-                <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="hover:text-black" title="إكس"><Twitter className="w-4 h-4" /></a>
-                <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-600" title="صدى الرقمية على يوتيوب"><Youtube className="w-4 h-4" /></a>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-600" title="إنستغرام"><Instagram className="w-4 h-4" /></a>
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#25D366]" title="واتساب"><WhatsAppIcon className="w-4 h-4" /></a>
+                <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" className="hover:text-black" title="تيك توك"><TikTokIcon className="w-4 h-4" /></a>
+                <a href={snapchatUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#e6b800]" title="سناب شات"><SnapchatIcon className="w-4 h-4" /></a>
+                <a href={youtubeUrl} target="_blank" rel="noopener noreferrer" className="hover:text-red-600" title="صدى الرقمية على يوتيوب"><YouTubeIcon className="w-4 h-4" /></a>
+                <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#1877f2]" title="صفحتنا على فيسبوك"><FacebookIcon className="w-4 h-4" /></a>
               </div>
             </div>
           </div>

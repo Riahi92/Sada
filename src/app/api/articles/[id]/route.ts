@@ -32,6 +32,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       revalidatePath('/news');
       revalidatePath(`/news/${updated.slug}`);
       revalidatePath('/admin/articles');
+      if (updated.category?.slug) {
+        revalidatePath(`/category/${updated.category.slug}`);
+        revalidatePath(`/news?category=${updated.category.slug}`);
+      }
     } catch {}
 
     return NextResponse.json(updated);

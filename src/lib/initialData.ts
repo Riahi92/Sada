@@ -496,7 +496,10 @@ export const initialSiteSettings: SiteSettings = {
   facebook_url: "https://www.facebook.com/profile.php?id=61584651215444",
   instagram_url: "https://instagram.com",
   twitter_url: "https://x.com",
-  youtube_url: "https://www.youtube.com/@chaînenumériquesSada",
+  youtube_url: "https://www.youtube.com/@chainenumeriquessada",
+  whatsapp_url: "https://api.whatsapp.com/message/NNTKTGMOHR3UI1?autoload=1&app_absent=0",
+  snapchat_url: "https://www.snapchat.com/@chainesada?share_id=J8xO8av-uwM&locale=ar-AA",
+  tiktok_url: "https://www.tiktok.com/@chainenumeriquesada1?_r=1&_t=ZS-9B35HfgOYOk",
   breaking_ticker_enabled: true,
 };
 

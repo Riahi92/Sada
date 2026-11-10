@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, Facebook, Youtube, MessageSquare } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
+import { WhatsAppIcon, SnapchatIcon, TikTokIcon, YouTubeIcon, FacebookIcon } from '@/components/SocialIcons';
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -65,14 +66,34 @@ export default function ContactPage() {
             </div>
           </div>
 
+          {/* WhatsApp Direct Chat Box */}
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 text-center">
+            <WhatsAppIcon className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+            <h3 className="font-heading font-bold text-base text-brand-navy mb-1">
+              محادثة فورية عبر واتساب
+            </h3>
+            <p className="text-xs text-gray-600 mb-3">
+              أرسل مقترحاتك أو استفساراتك مباشرة إلى فريق تحرير صدى
+            </p>
+            <a
+              href="https://api.whatsapp.com/message/NNTKTGMOHR3UI1?autoload=1&app_absent=0"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-md text-xs font-bold transition shadow-sm"
+            >
+              <WhatsAppIcon className="w-4 h-4" />
+              <span>مراسلتنا عبر واتساب</span>
+            </a>
+          </div>
+
           {/* Facebook Link Box */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 text-center">
-            <Facebook className="w-8 h-8 text-blue-600 mx-auto mb-2 fill-blue-600" />
+            <FacebookIcon className="w-8 h-8 text-blue-600 mx-auto mb-2" />
             <h3 className="font-heading font-bold text-base text-brand-navy mb-1">
               صفحة فيسبوك الرسمية
             </h3>
             <p className="text-xs text-gray-600 mb-3">
-              تواصل مباشرة مع فريق التحرير عبر رسائل صفحتنا الرسمية
+              تواصل مباشرة مع فريق التحرير وتابع مستجدات الأخبار
             </p>
             <a
               href="https://www.facebook.com/profile.php?id=61584651215444"
@@ -80,13 +101,14 @@ export default function ContactPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold transition shadow-sm"
             >
+              <FacebookIcon className="w-4 h-4" />
               <span>مراسلتنا على فيسبوك</span>
             </a>
           </div>
 
           {/* YouTube Channel Box */}
           <div className="bg-red-50 border border-red-200 rounded-xl p-5 text-center">
-            <Youtube className="w-8 h-8 text-red-600 mx-auto mb-2 fill-red-600" />
+            <YouTubeIcon className="w-8 h-8 text-red-600 mx-auto mb-2" />
             <h3 className="font-heading font-bold text-base text-brand-navy mb-1">
               صدى الرقمية على يوتيوب
             </h3>
@@ -94,13 +116,37 @@ export default function ContactPage() {
               شاهد تقاريرنا وتغطياتنا المرئية الحصرية واشترك لمتابعة الجديد
             </p>
             <a
-              href="https://www.youtube.com/@chaînenumériquesSada"
+              href="https://www.youtube.com/@chainenumeriquessada"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-bold transition shadow-sm"
             >
-              <Youtube className="w-4 h-4 fill-white" />
-              <span>متابعة والاشتراك</span>
+              <YouTubeIcon className="w-4 h-4" />
+              <span>متابعة واشتراك في يوتيوب</span>
+            </a>
+          </div>
+
+          {/* TikTok & Snapchat Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <a
+              href="https://www.tiktok.com/@chainenumeriquesada1?_r=1&_t=ZS-9B35HfgOYOk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-gray-900 hover:bg-black text-white p-3.5 rounded-xl border border-gray-800 text-center transition flex flex-col items-center justify-center gap-1.5 group"
+            >
+              <TikTokIcon className="w-5 h-5 text-white group-hover:scale-110 transition" />
+              <span className="text-xs font-bold">تيك توك</span>
+              <span className="text-[10px] text-gray-400">@chainenumeriquesada1</span>
+            </a>
+            <a
+              href="https://www.snapchat.com/@chainesada?share_id=J8xO8av-uwM&locale=ar-AA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 p-3.5 rounded-xl border border-yellow-300 text-center transition flex flex-col items-center justify-center gap-1.5 group"
+            >
+              <SnapchatIcon className="w-5 h-5 text-black group-hover:scale-110 transition" />
+              <span className="text-xs font-bold">سناب شات</span>
+              <span className="text-[10px] text-gray-800 font-semibold">@chainesada</span>
             </a>
           </div>
         </div>

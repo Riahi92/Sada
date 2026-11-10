@@ -64,6 +64,7 @@ function saveBase64Image(dataUri?: string, prefix: string = 'img'): string {
 // Local cache/store for zero-config seamless runtime
 let inMemoryArticles: Article[] = loadPersistedArticles();
 let inMemoryCategories: Category[] = [...initialCategories];
+let cachedDbCategories: Category[] = [];
 let inMemoryAuthors: Profile[] = [...initialAuthors];
 let inMemorySettings: SiteSettings = { ...initialSiteSettings };
 let inMemorySubscribers: NewsletterSubscriber[] = [
@@ -72,6 +73,45 @@ let inMemorySubscribers: NewsletterSubscriber[] = [
 ];
 let inMemoryComments: Comment[] = [...initialComments];
 let inMemoryPolls: Record<string, ArticlePoll> = { ...initialPolls };
+
+/**
+ * Universal Category Resolver:
+ * Reliably maps any identifier (Supabase UUID, standard ID like 'cat-1',
+ * slug like 'tunisia', or legacy prefix like 'cat-culture') to the full Category object.
+ */
+export function resolveCategory(catIdentifier?: string): Category | undefined {
+  if (!catIdentifier) return undefined;
+
+  // 1. Direct match on id in initialCategories
+  let match = initialCategories.find(c => c.id === catIdentifier);
+  if (match) return match;
+
+  // 2. Direct match on slug
+  match = initialCategories.find(c => c.slug === catIdentifier);
+  if (match) return match;
+
+  // 3. Match 'cat-' + slug (e.g. 'cat-culture' -> 'culture', 'cat-sports' -> 'sports')
+  if (catIdentifier.startsWith('cat-')) {
+    const slugFromId = catIdentifier.substring(4);
+    match = initialCategories.find(c => c.slug === slugFromId);
+    if (match) return match;
+  }
+
+  // 4. Match in cached Supabase DB categories (by UUID id or slug)
+  if (cachedDbCategories && cachedDbCategories.length > 0) {
+    const dbMatch = cachedDbCategories.find(c => c.id === catIdentifier || c.slug === catIdentifier);
+    if (dbMatch) {
+      const official = initialCategories.find(c => c.slug === dbMatch.slug);
+      return official ? { ...official, id: dbMatch.id } : dbMatch;
+    }
+  }
+
+  // 5. Match in dynamic inMemoryCategories
+  match = inMemoryCategories.find(c => c.id === catIdentifier || c.slug === catIdentifier || (catIdentifier.startsWith('cat-') && c.slug === catIdentifier.substring(4)));
+  if (match) return match;
+
+  return undefined;
+}
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const supabase = createClient();
@@ -107,6 +147,7 @@ export async function getCategories(): Promise<Category[]> {
       const { data, error } = await supabase.from('categories').select('*').order('order_index', { ascending: true });
       if (!error && data && data.length > 0) {
         dbCategories = data;
+        cachedDbCategories = data;
       }
     } catch {
       // ignore
@@ -117,7 +158,10 @@ export async function getCategories(): Promise<Category[]> {
   if (dbCategories.length === 0) {
     return inMemoryCategories.map(cat => ({
       ...cat,
-      article_count: inMemoryArticles.filter(a => (a.category_id === cat.id || a.category?.slug === cat.slug) && a.status === 'published').length,
+      article_count: inMemoryArticles.filter(a => {
+        const aCat = resolveCategory(a.category_id) || a.category;
+        return (aCat?.id === cat.id || aCat?.slug === cat.slug || a.category_id === cat.id || a.category?.slug === cat.slug) && a.status === 'published';
+      }).length,
     }));
   }
 
@@ -131,14 +175,17 @@ export async function getCategories(): Promise<Category[]> {
       name: officialCat.name,
       icon: officialCat.icon || existing?.icon,
       order_index: officialCat.order_index,
-      article_count: inMemoryArticles.filter(a => (a.category_id === id || a.category_id === officialCat.id || a.category?.slug === officialCat.slug) && a.status === 'published').length,
+      article_count: inMemoryArticles.filter(a => {
+        const aCat = resolveCategory(a.category_id) || a.category;
+        return (aCat?.id === id || aCat?.slug === officialCat.slug || a.category_id === id || a.category_id === officialCat.id || a.category?.slug === officialCat.slug) && a.status === 'published';
+      }).length,
     };
   });
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   const cats = await getCategories();
-  return cats.find(c => c.slug === slug) || initialCategories.find(c => c.slug === slug) || null;
+  return cats.find(c => c.slug === slug) || initialCategories.find(c => c.slug === slug) || resolveCategory(slug) || null;
 }
 
 export interface GetArticlesParams {
@@ -174,12 +221,18 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
   }
 
   if (categoryId) {
-    filtered = filtered.filter(a => a.category_id === categoryId);
+    const targetCat = resolveCategory(categoryId);
+    filtered = filtered.filter(a => {
+      if (a.category_id === categoryId) return true;
+      const aCat = resolveCategory(a.category_id) || a.category;
+      if (targetCat && aCat && aCat.slug === targetCat.slug) return true;
+      return false;
+    });
   } else if (categorySlug) {
-    const cat = inMemoryCategories.find(c => c.slug === categorySlug) || initialCategories.find(c => c.slug === categorySlug);
-    if (cat) {
-      filtered = filtered.filter(a => a.category_id === cat.id || a.category?.slug === categorySlug);
-    }
+    filtered = filtered.filter(a => {
+      const aCat = resolveCategory(a.category_id) || a.category;
+      return aCat?.slug === categorySlug;
+    });
   }
 
   if (isFeatured !== undefined) {
@@ -210,11 +263,14 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
   const paginated = filtered.slice(offset, offset + limit);
 
   // Populate category and author
-  const articles = paginated.map(art => ({
-    ...art,
-    category: inMemoryCategories.find(c => c.id === art.category_id) || initialCategories.find(c => c.id === art.category_id || c.slug === art.category?.slug) || art.category,
-    author: inMemoryAuthors.find(au => au.id === art.author_id) || art.author,
-  }));
+  const articles = paginated.map(art => {
+    const resolvedCat = resolveCategory(art.category_id) || art.category;
+    return {
+      ...art,
+      category: resolvedCat,
+      author: inMemoryAuthors.find(au => au.id === art.author_id) || art.author,
+    };
+  });
 
   return { articles, total };
 }
@@ -226,7 +282,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 
   return {
     ...art,
-    category: inMemoryCategories.find(c => c.id === art.category_id) || art.category,
+    category: resolveCategory(art.category_id) || art.category,
     author: inMemoryAuthors.find(au => au.id === art.author_id) || art.author,
   };
 }
@@ -275,8 +331,8 @@ export async function getVideoArticles(limit: number = 4): Promise<Article[]> {
   const filtered = currentArticles.filter(a => a.video_url && a.video_url.length > 0 && a.status === 'published');
   return filtered.slice(0, limit).map(art => ({
     ...art,
-    category: inMemoryCategories.find(c => c.id === art.category_id),
-    author: inMemoryAuthors.find(au => au.id === art.author_id),
+    category: resolveCategory(art.category_id) || art.category,
+    author: inMemoryAuthors.find(au => au.id === art.author_id) || art.author,
   }));
 }
 
@@ -320,6 +376,8 @@ export async function createArticle(data: Partial<Article>): Promise<Article> {
   }
 
   const savedFeaturedImage = saveBase64Image(data.featured_image, 'cover') || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&auto=format&fit=crop&q=80';
+  const resolvedCategory = resolveCategory(data.category_id) || initialCategories[0];
+  const finalCategoryId = resolvedCategory?.id || data.category_id || initialCategories[0].id;
 
   const newArticle: Article = {
     id: `art-${Date.now()}`,
@@ -328,7 +386,8 @@ export async function createArticle(data: Partial<Article>): Promise<Article> {
     excerpt: data.excerpt || '',
     content: data.content || '',
     featured_image: savedFeaturedImage,
-    category_id: data.category_id || inMemoryCategories[0].id,
+    category_id: finalCategoryId,
+    category: resolvedCategory,
     author_id: resolvedAuthorId,
     author: resolvedAuthor,
     status: (data.status as any) || 'published', // Always default to published so it appears immediately!
@@ -403,9 +462,14 @@ export async function updateArticle(id: string, data: Partial<Article>): Promise
     }
   }
 
+  const targetCategoryId = data.category_id || inMemoryArticles[index].category_id;
+  const resolvedCategory = resolveCategory(targetCategoryId) || inMemoryArticles[index].category;
+
   inMemoryArticles[index] = {
     ...inMemoryArticles[index],
     ...data,
+    category_id: resolvedCategory?.id || targetCategoryId,
+    category: resolvedCategory,
     author_id: resolvedAuthorId,
     author: resolvedAuthor || inMemoryArticles[index].author,
     updated_at: new Date().toISOString(),

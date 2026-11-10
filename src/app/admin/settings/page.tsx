@@ -156,6 +156,49 @@ export default function AdminSettingsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">رابط واتساب (WhatsApp)</label>
+              <input
+                type="url"
+                value={settings.whatsapp_url || ''}
+                onChange={(e) => setSettings({ ...settings, whatsapp_url: e.target.value })}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                placeholder="https://api.whatsapp.com/message/..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">رابط تيك توك (TikTok)</label>
+              <input
+                type="url"
+                value={settings.tiktok_url || ''}
+                onChange={(e) => setSettings({ ...settings, tiktok_url: e.target.value })}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                placeholder="https://www.tiktok.com/@..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">رابط سناب شات (Snapchat)</label>
+              <input
+                type="url"
+                value={settings.snapchat_url || ''}
+                onChange={(e) => setSettings({ ...settings, snapchat_url: e.target.value })}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                placeholder="https://www.snapchat.com/@..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">رابط يوتيوب صدى الرقمية</label>
+              <input
+                type="url"
+                value={settings.youtube_url}
+                onChange={(e) => setSettings({ ...settings, youtube_url: e.target.value })}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
+              />
+            </div>
+
+            <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">رابط X (تويتر سابقاً)</label>
               <input
                 type="url"
@@ -171,16 +214,6 @@ export default function AdminSettingsPage() {
                 type="url"
                 value={settings.instagram_url}
                 onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">رابط يوتيوب صدى الرقمية</label>
-              <input
-                type="url"
-                value={settings.youtube_url}
-                onChange={(e) => setSettings({ ...settings, youtube_url: e.target.value })}
                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
               />
             </div>

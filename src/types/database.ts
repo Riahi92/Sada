@@ -111,6 +111,9 @@ export interface SiteSettings {
   instagram_url: string;
   twitter_url: string;
   youtube_url: string;
+  whatsapp_url?: string;
+  snapchat_url?: string;
+  tiktok_url?: string;
   breaking_ticker_enabled: boolean;
   updated_at?: string;
 }

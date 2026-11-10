@@ -103,7 +103,10 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
     facebook_url TEXT DEFAULT 'https://www.facebook.com/profile.php?id=61584651215444',
     instagram_url TEXT DEFAULT 'https://instagram.com',
     twitter_url TEXT DEFAULT 'https://x.com',
-    youtube_url TEXT DEFAULT 'https://www.youtube.com/@chaînenumériquesSada',
+    youtube_url TEXT DEFAULT 'https://www.youtube.com/@chainenumeriquessada',
+    whatsapp_url TEXT DEFAULT 'https://api.whatsapp.com/message/NNTKTGMOHR3UI1?autoload=1&app_absent=0',
+    snapchat_url TEXT DEFAULT 'https://www.snapchat.com/@chainesada?share_id=J8xO8av-uwM&locale=ar-AA',
+    tiktok_url TEXT DEFAULT 'https://www.tiktok.com/@chainenumeriquesada1?_r=1&_t=ZS-9B35HfgOYOk',
     breaking_ticker_enabled BOOLEAN DEFAULT TRUE NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
@@ -275,6 +278,6 @@ INSERT INTO public.categories (name, slug, description, icon, order_index) VALUE
 ('منوعات', 'variety', 'قصص ملهمة، طرائف واكتشافات علمية مشوقة من حول العالم', 'Sparkles', 10)
 ON CONFLICT (slug) DO NOTHING;
 
-INSERT INTO public.site_settings (id, site_name, site_description, facebook_url, youtube_url) VALUES
-('00000000-0000-0000-0000-000000000001', 'صدى - منصة إخبارية رقمية متكاملة', 'منصة إخبارية تونسية وعربية مستقلة تنقل الخبر بمصداقية وعمق على مدار الساعة.', 'https://www.facebook.com/profile.php?id=61584651215444', 'https://www.youtube.com/@chaînenumériquesSada')
+INSERT INTO public.site_settings (id, site_name, site_description, facebook_url, youtube_url, whatsapp_url, snapchat_url, tiktok_url) VALUES
+('00000000-0000-0000-0000-000000000001', 'صدى - منصة إخبارية رقمية متكاملة', 'منصة إخبارية تونسية وعربية مستقلة تنقل الخبر بمصداقية وعمق على مدار الساعة.', 'https://www.facebook.com/profile.php?id=61584651215444', 'https://www.youtube.com/@chainenumeriquessada', 'https://api.whatsapp.com/message/NNTKTGMOHR3UI1?autoload=1&app_absent=0', 'https://www.snapchat.com/@chainesada?share_id=J8xO8av-uwM&locale=ar-AA', 'https://www.tiktok.com/@chainenumeriquesada1?_r=1&_t=ZS-9B35HfgOYOk')
 ON CONFLICT (id) DO NOTHING;

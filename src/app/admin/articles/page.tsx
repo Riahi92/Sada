@@ -76,7 +76,10 @@ export default function AdminArticlesPage() {
     const matchesSearch = !search || 
       a.title.toLowerCase().includes(search.toLowerCase()) || 
       a.excerpt.toLowerCase().includes(search.toLowerCase());
-    const matchesCat = !selectedCategory || a.category_id === selectedCategory || a.category?.slug === selectedCategory;
+    const matchesCat = !selectedCategory || 
+      a.category_id === selectedCategory || 
+      a.category?.id === selectedCategory || 
+      a.category?.slug === selectedCategory;
     const matchesStatus = selectedStatus === 'all' || a.status === selectedStatus;
     return matchesSearch && matchesCat && matchesStatus;
   });

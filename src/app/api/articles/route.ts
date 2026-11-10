@@ -49,8 +49,12 @@ export async function POST(request: NextRequest) {
       revalidatePath('/');
       revalidatePath('/news');
       revalidatePath('/admin/articles');
+      if (created.slug) {
+        revalidatePath(`/news/${created.slug}`);
+      }
       if (created.category?.slug) {
         revalidatePath(`/category/${created.category.slug}`);
+        revalidatePath(`/news?category=${created.category.slug}`);
       }
     } catch {}
 

@@ -4,10 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
-  Facebook, 
-  Twitter, 
-  Instagram, 
-  Youtube, 
   Mail, 
   Phone, 
   MapPin, 
@@ -16,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Category, SiteSettings } from '@/types/database';
 import CategoryIcon from '@/components/CategoryIcon';
+import { WhatsAppIcon, SnapchatIcon, TikTokIcon, YouTubeIcon, FacebookIcon } from '@/components/SocialIcons';
 
 interface FooterProps {
   categories: Category[];
@@ -25,7 +22,10 @@ interface FooterProps {
 export default function Footer({ categories, settings }: FooterProps) {
   const currentYear = new Date().getFullYear();
   const facebookUrl = settings?.facebook_url || 'https://www.facebook.com/profile.php?id=61584651215444';
-  const youtubeUrl = settings?.youtube_url || 'https://www.youtube.com/@chaînenumériquesSada';
+  const youtubeUrl = settings?.youtube_url || 'https://www.youtube.com/@chainenumeriquessada';
+  const whatsappUrl = settings?.whatsapp_url || 'https://api.whatsapp.com/message/NNTKTGMOHR3UI1?autoload=1&app_absent=0';
+  const snapchatUrl = settings?.snapchat_url || 'https://www.snapchat.com/@chainesada?share_id=J8xO8av-uwM&locale=ar-AA';
+  const tiktokUrl = settings?.tiktok_url || 'https://www.tiktok.com/@chainenumeriquesada1?_r=1&_t=ZS-9B35HfgOYOk';
 
   return (
     <footer className="bg-[#051838] text-slate-300 border-t-4 border-[#d0121a] mt-16 pt-10 pb-6 text-sm font-tajawal" data-purpose="site-footer">
@@ -52,22 +52,31 @@ export default function Footer({ categories, settings }: FooterProps) {
             </p>
             <div className="flex items-center gap-2 pt-2">
               <a
-                href={facebookUrl}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
-                title="صفحتنا على فيسبوك"
+                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#25D366] text-white flex items-center justify-center transition"
+                title="تواصل معنا عبر واتساب"
               >
-                <Facebook className="w-3.5 h-3.5" />
+                <WhatsAppIcon className="w-3.5 h-3.5" />
               </a>
               <a
-                href="https://x.com"
+                href={tiktokUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
-                title="إكس / تويتر"
+                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-black text-white flex items-center justify-center transition"
+                title="حساب صدى على تيك توك"
               >
-                <Twitter className="w-3.5 h-3.5" />
+                <TikTokIcon className="w-3.5 h-3.5" />
+              </a>
+              <a
+                href={snapchatUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#FFFC00] hover:text-black text-white flex items-center justify-center transition"
+                title="حساب صدى على سناب شات"
+              >
+                <SnapchatIcon className="w-3.5 h-3.5" />
               </a>
               <a
                 href={youtubeUrl}
@@ -76,16 +85,16 @@ export default function Footer({ categories, settings }: FooterProps) {
                 className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
                 title="صدى الرقمية على يوتيوب"
               >
-                <Youtube className="w-3.5 h-3.5" />
+                <YouTubeIcon className="w-3.5 h-3.5" />
               </a>
               <a
-                href="https://instagram.com"
+                href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#d0121a] text-white flex items-center justify-center transition"
-                title="إنستغرام"
+                className="w-8 h-8 rounded bg-blue-900/50 hover:bg-[#1877f2] text-white flex items-center justify-center transition"
+                title="صفحتنا على فيسبوك"
               >
-                <Instagram className="w-3.5 h-3.5" />
+                <FacebookIcon className="w-3.5 h-3.5" />
               </a>
             </div>
           </div>
