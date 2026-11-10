@@ -263,7 +263,7 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
     }
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent, statusOverride?: 'published' | 'draft') => {
     if (e && e.preventDefault) e.preventDefault();
     if (!title.trim()) {
       setMessage({ type: 'error', text: 'يرجى كتابة عنوان المقال أولاً' });
@@ -275,6 +275,19 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
     setMessage(null);
 
     const finalSlug = slug.trim() || generateSlug(title) || `article-${Date.now()}`;
+    const targetStatus = statusOverride || status || 'published';
+
+    let safePublishedAt = new Date().toISOString();
+    try {
+      if (publishedAt) {
+        const d = new Date(publishedAt);
+        if (!isNaN(d.getTime())) {
+          safePublishedAt = d.toISOString();
+        }
+      }
+    } catch {
+      safePublishedAt = new Date().toISOString();
+    }
 
     const payload = {
       title: title.trim(),
@@ -282,7 +295,7 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
       excerpt: excerpt.trim() || title.trim(),
       content: content.trim() || `<p>${title.trim()}</p>`,
       category_id: categoryId || (categories[0]?.id || 'cat-1'),
-      featured_image: featuredImage,
+      featured_image: featuredImage || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&auto=format&fit=crop&q=80',
       author_id: authorId !== 'custom' ? authorId : undefined,
       author: {
         id: authorId !== 'custom' ? authorId : undefined,
@@ -290,13 +303,13 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
         avatar_url: authorAvatar,
         role: authorRole as any,
       },
-      status: status || 'published',
+      status: targetStatus,
       is_featured: isFeatured,
       is_breaking: isBreaking,
       video_url: videoUrl,
       meta_title: metaTitle || title,
       meta_description: metaDescription || excerpt || title,
-      published_at: new Date(publishedAt).toISOString(),
+      published_at: safePublishedAt,
     };
 
     try {
@@ -323,15 +336,15 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
         const errData = await res.json().catch(() => ({}));
         setMessage({ type: 'error', text: errData.error || 'حدث خطأ أثناء حفظ المقال' });
       }
-    } catch {
-      setMessage({ type: 'error', text: 'تعذر الاتصال بالخادم' });
+    } catch (err: any) {
+      setMessage({ type: 'error', text: `تعذر الاتصال بالخادم: ${err?.message || 'يرجى التأكد من تشغيل خادم التطبيق'}` });
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <form noValidate onSubmit={handleSubmit} className="space-y-6">
+    <form noValidate onSubmit={(e) => handleSubmit(e)} className="space-y-6">
       {/* Action Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm sticky top-4 z-20">
         <div className="flex items-center gap-3">
@@ -358,7 +371,7 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
             type="button"
             onClick={() => {
               setStatus('draft');
-              handleSubmit();
+              handleSubmit(undefined, 'draft');
             }}
             disabled={saving}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-brand-navy text-xs font-bold rounded-lg transition disabled:opacity-60 cursor-pointer"
@@ -370,7 +383,7 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
             type="button"
             onClick={() => {
               setStatus('published');
-              handleSubmit();
+              handleSubmit(undefined, 'published');
             }}
             disabled={saving}
             className="px-5 py-2 bg-brand-red hover:bg-brand-redDark text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5 disabled:opacity-60 cursor-pointer"
@@ -404,7 +417,6 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
               </label>
               <input
                 type="text"
-                required
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="أدخل عنواناً صحفياً قوياً وجذاباً..."
@@ -439,7 +451,6 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
               </div>
               <input
                 type="text"
-                required
                 value={slug}
                 onChange={(e) => handleSlugChange(e.target.value)}
                 placeholder="يتم توليد الرابط تلقائياً بمجرد كتابة عنوان الخبر..."
@@ -699,7 +710,6 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              required
               className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-brand-navy"
             >
               {categories.map((c) => (
@@ -748,7 +758,6 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
               </label>
               <input
                 type="text"
-                required
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
                 placeholder="مثال: شيماء اسماعيلي / أنيس الشابي"
@@ -850,7 +859,6 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
                 </label>
                 <input
                   type="text"
-                  required
                   value={featuredImage}
                   onChange={(e) => setFeaturedImage(e.target.value)}
                   placeholder="https://..."

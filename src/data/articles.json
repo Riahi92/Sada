@@ -1,5 +1,25 @@
 [
   {
+    "id": "art-1794345294326",
+    "title": "أيام قرطاج المسرحية في دورتها الـ27: 12 عملاً مسرحياً تتنافس على الخشبة... وتنوّع عربي وإفريقي",
+    "slug": "carthage-theatre-27",
+    "excerpt": "افتتاح الدورة الـ 27 لأيام قرطاج المسرحية بمشاركة عربية وإفريقية متميزة",
+    "content": "<p>أيام قرطاج المسرحية في دورتها الـ 27...</p>",
+    "featured_image": "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=1200",
+    "category_id": "cat-culture",
+    "author_id": "author-1",
+    "status": "published",
+    "is_featured": true,
+    "is_breaking": false,
+    "views_count": 0,
+    "meta_title": "أيام قرطاج المسرحية في دورتها الـ27: 12 عملاً مسرحياً تتنافس على الخشبة... وتنوّع عربي وإفريقي",
+    "meta_description": "افتتاح الدورة الـ 27 لأيام قرطاج المسرحية بمشاركة عربية وإفريقية متميزة",
+    "video_url": "",
+    "published_at": "2026-11-10T21:14:54.326Z",
+    "created_at": "2026-11-10T21:14:54.326Z",
+    "updated_at": "2026-11-10T21:14:54.326Z"
+  },
+  {
     "id": "art-1",
     "title": "تونس تطلق استراتيجية وطنية شاملة للتحول الرقمي وتطوير مراكز الذكاء الاصطناعي",
     "slug": "tunisia-national-digital-transformation-ai-strategy",
