@@ -1,6 +1,7 @@
 import { Article, Category, Profile, SiteSettings, NewsletterSubscriber, Comment, ArticlePoll } from '@/types/database';
 import { initialArticles, initialCategories, initialAuthors, initialSiteSettings, initialComments, initialPolls } from './initialData';
 import { createClient } from './supabase/client';
+import { getAdminSupabaseClient } from './supabase/admin';
 import fs from 'fs';
 import path from 'path';
 
@@ -214,7 +215,47 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
   } = params;
 
   inMemoryArticles = loadPersistedArticles();
-  let filtered = [...inMemoryArticles];
+  let baseArticles = [...inMemoryArticles];
+
+  // Try fetching articles from Supabase if connected
+  const supabase = getAdminSupabaseClient() || createClient();
+  if (supabase) {
+    try {
+      const { data: dbArticles, error: dbErr } = await supabase.from('articles').select('*');
+      if (!dbErr && dbArticles && dbArticles.length > 0) {
+        const dbMapped: Article[] = dbArticles.map((da: any) => {
+          const resolvedCat = resolveCategory(da.category_id);
+          return {
+            id: da.id,
+            title: da.title,
+            slug: da.slug,
+            excerpt: da.excerpt || '',
+            content: da.content || '',
+            featured_image: da.featured_image,
+            category_id: da.category_id,
+            category: resolvedCat,
+            author_id: da.author_id,
+            author: inMemoryAuthors[0],
+            status: da.status,
+            is_featured: !!da.is_featured,
+            is_breaking: !!da.is_breaking,
+            views_count: Number(da.views_count) || 0,
+            meta_title: da.meta_title || da.title,
+            meta_description: da.meta_description || da.excerpt,
+            video_url: da.video_url || '',
+            published_at: da.published_at,
+            created_at: da.created_at,
+            updated_at: da.updated_at,
+          };
+        });
+
+        const mergedSlugs = new Set(dbMapped.map(a => a.slug));
+        baseArticles = [...dbMapped, ...baseArticles.filter(a => !mergedSlugs.has(a.slug))];
+      }
+    } catch {}
+  }
+
+  let filtered = baseArticles;
 
   if (status !== 'all') {
     filtered = filtered.filter(a => a.status === status);
@@ -277,7 +318,45 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const currentArticles = loadPersistedArticles();
-  const art = currentArticles.find(a => a.slug === slug || a.id === slug);
+  let art = currentArticles.find(a => a.slug === slug || a.id === slug);
+
+  const supabase = getAdminSupabaseClient() || createClient();
+  if (supabase) {
+    try {
+      const { data: dbArt } = await supabase
+        .from('articles')
+        .select('*')
+        .or(`slug.eq.${slug},id.eq.${slug}`)
+        .limit(1)
+        .maybeSingle();
+
+      if (dbArt) {
+        art = {
+          id: dbArt.id,
+          title: dbArt.title,
+          slug: dbArt.slug,
+          excerpt: dbArt.excerpt || '',
+          content: dbArt.content || '',
+          featured_image: dbArt.featured_image,
+          category_id: dbArt.category_id,
+          category: resolveCategory(dbArt.category_id),
+          author_id: dbArt.author_id,
+          author: inMemoryAuthors[0],
+          status: dbArt.status,
+          is_featured: !!dbArt.is_featured,
+          is_breaking: !!dbArt.is_breaking,
+          views_count: Number(dbArt.views_count) || 0,
+          meta_title: dbArt.meta_title || dbArt.title,
+          meta_description: dbArt.meta_description || dbArt.excerpt,
+          video_url: dbArt.video_url || '',
+          published_at: dbArt.published_at,
+          created_at: dbArt.created_at,
+          updated_at: dbArt.updated_at,
+        };
+      }
+    } catch {}
+  }
+
   if (!art) return null;
 
   return {
@@ -406,28 +485,52 @@ export async function createArticle(data: Partial<Article>): Promise<Article> {
   savePersistedArticles(inMemoryArticles);
 
   // Sync with Supabase if available
-  const supabase = createClient();
+  const supabase = getAdminSupabaseClient() || createClient();
   if (supabase) {
     try {
-      await supabase.from('articles').insert({
-        id: newArticle.id,
-        title: newArticle.title,
-        slug: newArticle.slug,
-        excerpt: newArticle.excerpt,
-        content: newArticle.content,
-        featured_image: newArticle.featured_image,
-        category_id: newArticle.category_id,
-        author_id: newArticle.author_id,
-        status: newArticle.status,
-        is_featured: newArticle.is_featured,
-        is_breaking: newArticle.is_breaking,
-        views_count: 0,
-        meta_title: newArticle.meta_title,
-        meta_description: newArticle.meta_description,
-        video_url: newArticle.video_url,
-        published_at: newArticle.published_at,
-      });
-    } catch {}
+      let supabaseCatId: string | undefined = undefined;
+      if (cachedDbCategories && cachedDbCategories.length > 0) {
+        const found = cachedDbCategories.find(c => c.id === newArticle.category_id || c.slug === resolvedCategory?.slug);
+        if (found) supabaseCatId = found.id;
+      }
+      if (!supabaseCatId) {
+        const { data: dbCats } = await supabase.from('categories').select('id, slug');
+        if (dbCats && dbCats.length > 0) {
+          cachedDbCategories = dbCats as any;
+          const found = dbCats.find(c => c.id === newArticle.category_id || c.slug === resolvedCategory?.slug);
+          if (found) supabaseCatId = found.id;
+        }
+      }
+
+      if (supabaseCatId) {
+        const { data: inserted, error: insertError } = await supabase.from('articles').upsert({
+          title: newArticle.title,
+          slug: newArticle.slug,
+          excerpt: newArticle.excerpt,
+          content: newArticle.content,
+          featured_image: newArticle.featured_image,
+          category_id: supabaseCatId,
+          status: newArticle.status,
+          is_featured: newArticle.is_featured,
+          is_breaking: newArticle.is_breaking,
+          views_count: newArticle.views_count || 0,
+          meta_title: newArticle.meta_title,
+          meta_description: newArticle.meta_description,
+          video_url: newArticle.video_url,
+          published_at: newArticle.published_at,
+        }, { onConflict: 'slug' }).select('id');
+
+        if (insertError) {
+          console.error('[Supabase Sync] Article insert error:', insertError.message, insertError.code);
+        } else {
+          console.log('[Supabase Sync] Article synced successfully to Supabase!');
+        }
+      } else {
+        console.warn('[Supabase Sync] Could not match Supabase category UUID for slug:', resolvedCategory?.slug);
+      }
+    } catch (err: any) {
+      console.error('[Supabase Sync] Exception during article sync:', err?.message || err);
+    }
   }
 
   return newArticle;
@@ -477,6 +580,46 @@ export async function updateArticle(id: string, data: Partial<Article>): Promise
 
   savePersistedArticles(inMemoryArticles);
 
+  // Sync update with Supabase
+  const supabase = getAdminSupabaseClient() || createClient();
+  if (supabase) {
+    try {
+      let supabaseCatId: string | undefined = undefined;
+      if (resolvedCategory?.slug && cachedDbCategories.length > 0) {
+        const found = cachedDbCategories.find(c => c.slug === resolvedCategory.slug);
+        if (found) supabaseCatId = found.id;
+      }
+      const updatePayload: any = {
+        title: inMemoryArticles[index].title,
+        slug: inMemoryArticles[index].slug,
+        excerpt: inMemoryArticles[index].excerpt,
+        content: inMemoryArticles[index].content,
+        featured_image: inMemoryArticles[index].featured_image,
+        status: inMemoryArticles[index].status,
+        is_featured: inMemoryArticles[index].is_featured,
+        is_breaking: inMemoryArticles[index].is_breaking,
+        meta_title: inMemoryArticles[index].meta_title,
+        meta_description: inMemoryArticles[index].meta_description,
+        video_url: inMemoryArticles[index].video_url,
+        published_at: inMemoryArticles[index].published_at,
+        updated_at: new Date().toISOString(),
+      };
+      if (supabaseCatId) {
+        updatePayload.category_id = supabaseCatId;
+      }
+      const { error: updateError } = await supabase
+        .from('articles')
+        .update(updatePayload)
+        .eq('slug', inMemoryArticles[index].slug);
+
+      if (updateError) {
+        console.error('[Supabase Sync] Update error:', updateError.message);
+      }
+    } catch (err) {
+      console.error('[Supabase Sync] Update exception:', err);
+    }
+  }
+
   return inMemoryArticles[index];
 }
 
@@ -484,8 +627,20 @@ export async function deleteArticle(id: string): Promise<boolean> {
   inMemoryArticles = loadPersistedArticles();
   const index = inMemoryArticles.findIndex(a => a.id === id);
   if (index === -1) return false;
+  const targetSlug = inMemoryArticles[index].slug;
   inMemoryArticles.splice(index, 1);
   savePersistedArticles(inMemoryArticles);
+
+  // Sync delete with Supabase
+  const supabase = getAdminSupabaseClient() || createClient();
+  if (supabase) {
+    try {
+      await supabase.from('articles').delete().eq('slug', targetSlug);
+    } catch (err) {
+      console.error('[Supabase Sync] Delete exception:', err);
+    }
+  }
+
   return true;
 }
 
