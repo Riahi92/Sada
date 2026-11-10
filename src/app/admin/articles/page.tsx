@@ -29,7 +29,7 @@ export default function AdminArticlesPage() {
   const fetchArticles = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/articles?status=all&limit=100');
+      const res = await fetch('/api/articles?status=all&limit=100', { cache: 'no-store' });
       const data = await res.json();
       setArticles(data.articles || []);
     } catch {

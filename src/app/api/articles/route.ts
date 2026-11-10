@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getArticles, createArticle } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,6 +42,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'العنوان مطلوب' }, { status: 400 });
     }
     const created = await createArticle(body);
+
+    // Invalidate caches so the newly created article shows immediately everywhere
+    try {
+      revalidatePath('/', 'layout');
+      revalidatePath('/');
+      revalidatePath('/news');
+      revalidatePath('/admin/articles');
+      if (created.category?.slug) {
+        revalidatePath(`/category/${created.category.slug}`);
+      }
+    } catch {}
+
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'فشل إنشاء المقال' }, { status: 500 });

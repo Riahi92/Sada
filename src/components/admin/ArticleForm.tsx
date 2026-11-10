@@ -310,6 +310,7 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
 
       if (res.ok) {
         setMessage({ type: 'success', text: isEdit ? 'تم تحديث المقال بنجاح!' : 'تم نشر المقال بنجاح!' });
+        try { router.refresh(); } catch {}
         setTimeout(() => {
           router.push('/admin/articles');
         }, 1200);

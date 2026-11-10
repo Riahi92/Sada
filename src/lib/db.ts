@@ -1,9 +1,45 @@
 import { Article, Category, Profile, SiteSettings, NewsletterSubscriber, Comment, ArticlePoll } from '@/types/database';
 import { initialArticles, initialCategories, initialAuthors, initialSiteSettings, initialComments, initialPolls } from './initialData';
 import { createClient } from './supabase/client';
+import fs from 'fs';
+import path from 'path';
+
+// Persistent storage file path for seamless zero-loss article persistence
+const ARTICLES_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'articles.json');
+
+function savePersistedArticles(articles: Article[]) {
+  try {
+    const dir = path.dirname(ARTICLES_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(ARTICLES_FILE_PATH, JSON.stringify(articles, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Error saving persisted articles:', err);
+  }
+}
+
+function loadPersistedArticles(): Article[] {
+  try {
+    if (fs.existsSync(ARTICLES_FILE_PATH)) {
+      const content = fs.readFileSync(ARTICLES_FILE_PATH, 'utf-8');
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    } else {
+      // First run: save initialArticles to disk
+      savePersistedArticles(initialArticles);
+      return [...initialArticles];
+    }
+  } catch (err) {
+    console.error('Error loading persisted articles:', err);
+  }
+  return [...initialArticles];
+}
 
 // Local cache/store for zero-config seamless runtime
-let inMemoryArticles: Article[] = [...initialArticles];
+let inMemoryArticles: Article[] = loadPersistedArticles();
 let inMemoryCategories: Category[] = [...initialCategories];
 let inMemoryAuthors: Profile[] = [...initialAuthors];
 let inMemorySettings: SiteSettings = { ...initialSiteSettings };
@@ -107,6 +143,7 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
     sortBy = 'latest',
   } = params;
 
+  inMemoryArticles = loadPersistedArticles();
   let filtered = [...inMemoryArticles];
 
   if (status !== 'all') {
@@ -160,7 +197,8 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  const art = inMemoryArticles.find(a => a.slug === slug || a.id === slug);
+  const currentArticles = loadPersistedArticles();
+  const art = currentArticles.find(a => a.slug === slug || a.id === slug);
   if (!art) return null;
 
   return {
@@ -171,9 +209,11 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 }
 
 export async function incrementArticleViews(id: string): Promise<number> {
+  inMemoryArticles = loadPersistedArticles();
   const index = inMemoryArticles.findIndex(a => a.id === id || a.slug === id);
   if (index !== -1) {
     inMemoryArticles[index].views_count += 1;
+    savePersistedArticles(inMemoryArticles);
     return inMemoryArticles[index].views_count;
   }
   return 0;
@@ -185,17 +225,20 @@ export async function getBreakingNews(): Promise<Article[]> {
 }
 
 export async function getFeaturedHero(): Promise<{ main: Article | null; secondary: Article[] }> {
-  const { articles } = await getArticles({ isFeatured: true, limit: 5 });
-  if (articles.length === 0) {
-    const { articles: latest } = await getArticles({ limit: 5 });
+  const { articles: featured } = await getArticles({ isFeatured: true, limit: 5 });
+  const { articles: latest } = await getArticles({ limit: 5 });
+
+  if (featured.length === 0) {
     return {
       main: latest[0] || null,
       secondary: latest.slice(1, 5),
     };
   }
+
+  // If the newest article in the system is newer than the featured article, prioritize it or use featured
   return {
-    main: articles[0],
-    secondary: articles.slice(1, 5),
+    main: featured[0],
+    secondary: featured.slice(1, 5).concat(latest.filter(l => l.id !== featured[0].id)).slice(0, 4),
   };
 }
 
@@ -205,7 +248,8 @@ export async function getTrendingArticles(limit: number = 6): Promise<Article[]>
 }
 
 export async function getVideoArticles(limit: number = 4): Promise<Article[]> {
-  const filtered = inMemoryArticles.filter(a => a.video_url && a.video_url.length > 0 && a.status === 'published');
+  const currentArticles = loadPersistedArticles();
+  const filtered = currentArticles.filter(a => a.video_url && a.video_url.length > 0 && a.status === 'published');
   return filtered.slice(0, limit).map(art => ({
     ...art,
     category: inMemoryCategories.find(c => c.id === art.category_id),
@@ -223,6 +267,8 @@ export async function getRelatedArticles(articleId: string, categoryId: string, 
 // ==========================================
 
 export async function createArticle(data: Partial<Article>): Promise<Article> {
+  inMemoryArticles = loadPersistedArticles();
+
   let resolvedAuthor = data.author;
   let resolvedAuthorId = data.author_id || (inMemoryAuthors[0] ? inMemoryAuthors[0].id : undefined);
 
@@ -257,7 +303,7 @@ export async function createArticle(data: Partial<Article>): Promise<Article> {
     category_id: data.category_id || inMemoryCategories[0].id,
     author_id: resolvedAuthorId,
     author: resolvedAuthor,
-    status: data.status || 'draft',
+    status: (data.status as any) || 'published', // Always default to published so it appears immediately!
     is_featured: !!data.is_featured,
     is_breaking: !!data.is_breaking,
     views_count: 0,
@@ -270,10 +316,38 @@ export async function createArticle(data: Partial<Article>): Promise<Article> {
   };
 
   inMemoryArticles.unshift(newArticle);
+  savePersistedArticles(inMemoryArticles);
+
+  // Sync with Supabase if available
+  const supabase = createClient();
+  if (supabase) {
+    try {
+      await supabase.from('articles').insert({
+        id: newArticle.id,
+        title: newArticle.title,
+        slug: newArticle.slug,
+        excerpt: newArticle.excerpt,
+        content: newArticle.content,
+        featured_image: newArticle.featured_image,
+        category_id: newArticle.category_id,
+        author_id: newArticle.author_id,
+        status: newArticle.status,
+        is_featured: newArticle.is_featured,
+        is_breaking: newArticle.is_breaking,
+        views_count: 0,
+        meta_title: newArticle.meta_title,
+        meta_description: newArticle.meta_description,
+        video_url: newArticle.video_url,
+        published_at: newArticle.published_at,
+      });
+    } catch {}
+  }
+
   return newArticle;
 }
 
 export async function updateArticle(id: string, data: Partial<Article>): Promise<Article | null> {
+  inMemoryArticles = loadPersistedArticles();
   const index = inMemoryArticles.findIndex(a => a.id === id);
   if (index === -1) return null;
 
@@ -309,13 +383,17 @@ export async function updateArticle(id: string, data: Partial<Article>): Promise
     updated_at: new Date().toISOString(),
   };
 
+  savePersistedArticles(inMemoryArticles);
+
   return inMemoryArticles[index];
 }
 
 export async function deleteArticle(id: string): Promise<boolean> {
+  inMemoryArticles = loadPersistedArticles();
   const index = inMemoryArticles.findIndex(a => a.id === id);
   if (index === -1) return false;
   inMemoryArticles.splice(index, 1);
+  savePersistedArticles(inMemoryArticles);
   return true;
 }
 

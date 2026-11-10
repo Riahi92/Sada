@@ -16,7 +16,8 @@ import {
   getSiteSettings 
 } from '@/lib/db';
 
-export const revalidate = 60; // ISR cache revalidation every minute
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function HomePage() {
   const [
@@ -28,7 +29,7 @@ export default async function HomePage() {
     settings,
   ] = await Promise.all([
     getFeaturedHero(),
-    getArticles({ limit: 12 }),
+    getArticles({ limit: 30 }),
     getTrendingArticles(8),
     getCategories(),
     getVideoArticles(4),
