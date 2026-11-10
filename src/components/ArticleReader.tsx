@@ -16,7 +16,9 @@ import {
   Eye,
   Clock,
   User,
-  ArrowRight
+  ArrowRight,
+  BarChart2,
+  MessageSquare
 } from 'lucide-react';
 import { Article } from '@/types/database';
 
@@ -68,6 +70,22 @@ export default function ArticleReader({ article }: ArticleReaderProps) {
             <Eye className="w-3.5 h-3.5" />
             <span>{views.toLocaleString('ar-TN')} مشاهدة</span>
           </span>
+          <a
+            href="#poll"
+            className="hidden sm:flex items-center gap-1 text-brand-muted hover:text-brand-red transition font-medium"
+            title="الانتقال إلى استطلاع الرأي"
+          >
+            <BarChart2 className="w-3.5 h-3.5 text-brand-red" />
+            <span>استطلاع الرأي</span>
+          </a>
+          <a
+            href="#comments"
+            className="flex items-center gap-1 text-brand-muted hover:text-brand-red transition font-medium"
+            title="الانتقال إلى قسم التعليقات"
+          >
+            <MessageSquare className="w-3.5 h-3.5 text-brand-navy" />
+            <span>التعليقات</span>
+          </a>
         </div>
 
         {/* Action Tools: Font Size & Share */}

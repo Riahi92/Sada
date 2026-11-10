@@ -5,7 +5,9 @@ import Link from 'next/link';
 import type { Metadata, ResolvingMetadata } from 'next';
 import ArticleReader from '@/components/ArticleReader';
 import TrendingSection from '@/components/TrendingSection';
-import { getArticleBySlug, getRelatedArticles, getTrendingArticles } from '@/lib/db';
+import ArticlePoll from '@/components/ArticlePoll';
+import ArticleComments from '@/components/ArticleComments';
+import { getArticleBySlug, getRelatedArticles, getTrendingArticles, getCommentsByArticleId, getArticlePoll } from '@/lib/db';
 import { Clock, Eye, Share2, Tag, ArrowRight, Folder } from 'lucide-react';
 import CategoryIcon from '@/components/CategoryIcon';
 
@@ -61,9 +63,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound();
   }
 
-  const [relatedArticles, trendingArticles] = await Promise.all([
+  const [relatedArticles, trendingArticles, comments, poll] = await Promise.all([
     getRelatedArticles(article.id, article.category_id, 4),
     getTrendingArticles(5),
+    getCommentsByArticleId(article.id),
+    getArticlePoll(article.id),
   ]);
 
   // Schema.org NewsArticle JSON-LD
@@ -148,8 +152,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         {/* Two Columns Grid: Reader Content + Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Article Content (8 Cols) */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-8 space-y-8">
             <ArticleReader article={article} />
+
+            {/* Poll & Survey Section */}
+            <div id="poll" className="scroll-mt-6">
+              <ArticlePoll articleId={article.id} initialPoll={poll} />
+            </div>
+
+            {/* Comments Section */}
+            <div id="comments" className="scroll-mt-6">
+              <ArticleComments articleId={article.id} initialComments={comments} />
+            </div>
 
             {/* Related Articles in Same Category */}
             {relatedArticles.length > 0 && (

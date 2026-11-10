@@ -68,6 +68,29 @@ export interface Comment {
   user_email: string;
   content: string;
   is_approved: boolean;
+  likes_count?: number;
+  created_at: string;
+}
+
+export interface PollOption {
+  id: string;
+  text: string;
+  votes: number;
+}
+
+export interface ArticlePoll {
+  id: string;
+  article_id: string;
+  question: string;
+  options: PollOption[];
+  total_votes: number;
+}
+
+export interface PollVote {
+  id: string;
+  article_id: string;
+  option_id: string;
+  user_ip?: string;
   created_at: string;
 }
 

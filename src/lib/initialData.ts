@@ -1,4 +1,4 @@
-import { Article, Category, Profile, SiteSettings } from '@/types/database';
+import { Article, Category, Profile, SiteSettings, Comment, ArticlePoll } from '@/types/database';
 
 export const initialCategories: Category[] = [
   {
@@ -498,4 +498,72 @@ export const initialSiteSettings: SiteSettings = {
   twitter_url: "https://x.com",
   youtube_url: "https://www.youtube.com/@chaînenumériquesSada",
   breaking_ticker_enabled: true,
+};
+
+export const initialComments: Comment[] = [
+  {
+    id: "com-1",
+    article_id: "art-1",
+    user_name: "سامي الطرابلسي",
+    user_email: "sami.tr@gmail.com",
+    content: "خطوة ممتازة جداً لمواكبة التطور التقني العالمي! تونس تمتلك طاقات شابة قادرة على التميز في مجال الذكاء الاصطناعي لو توفرت لها البيئة المناسبة والتمويل.",
+    is_approved: true,
+    likes_count: 14,
+    created_at: "2026-11-02T14:30:00Z",
+  },
+  {
+    id: "com-2",
+    article_id: "art-1",
+    user_name: "د. هدى الورغمي",
+    user_email: "houda.w@univ.tn",
+    content: "الأهم هو ربط المناهج الجامعية باحتياجات سوق الشغل الفعلية ودعم مختبرات البحث العلمي في كليات الهندسة، نتمنى أن نرى نتائج ملموسة قريباً.",
+    is_approved: true,
+    likes_count: 8,
+    created_at: "2026-11-02T16:45:00Z",
+  },
+  {
+    id: "com-3",
+    article_id: "art-1",
+    user_name: "أحمد بن عمار",
+    user_email: "ahmed.ammar@yahoo.com",
+    content: "تغطية ممتازة من موقع صدى. متابعة مستمرة للتحولات الاقتصادية والتكنولوجية.",
+    is_approved: true,
+    likes_count: 5,
+    created_at: "2026-11-02T18:10:00Z",
+  },
+  {
+    id: "com-4",
+    article_id: "art-2",
+    user_name: "مروان الماجري",
+    user_email: "marwen.m@gmail.com",
+    content: "تقرير موضوعي يوضح التحديات الاقتصادية الحالية بكل شفافية.",
+    is_approved: true,
+    likes_count: 9,
+    created_at: "2026-11-02T17:00:00Z",
+  },
+  {
+    id: "com-5",
+    article_id: "art-3",
+    user_name: "سلمى القروي",
+    user_email: "salma.k@outlook.com",
+    content: "مبادرة هامة جداً ونرجو تعميمها على كافة ولايات الجمهورية لتشمل المناطق الداخلية.",
+    is_approved: true,
+    likes_count: 11,
+    created_at: "2026-11-02T19:20:00Z",
+  },
+];
+
+export const initialPolls: Record<string, ArticlePoll> = {
+  "art-1": {
+    id: "poll-art-1",
+    article_id: "art-1",
+    question: "هل تعتقد أن الاستراتيجية الوطنية للذكاء الاصطناعي ستعزز فرص تشغيل الشباب التونسي؟",
+    options: [
+      { id: "opt-1", text: "نعم وبشكل ملحوظ وملموس", votes: 42 },
+      { id: "opt-2", text: "نعم، بشرط توفر التمويل والمتابعة", votes: 28 },
+      { id: "opt-3", text: "أستبعد ذلك في المدى القريب", votes: 9 },
+      { id: "opt-4", text: "غير متأكد / بدون رأي", votes: 4 },
+    ],
+    total_votes: 83,
+  },
 };

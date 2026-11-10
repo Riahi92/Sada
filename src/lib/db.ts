@@ -1,5 +1,5 @@
-import { Article, Category, Profile, SiteSettings, NewsletterSubscriber } from '@/types/database';
-import { initialArticles, initialCategories, initialAuthors, initialSiteSettings } from './initialData';
+import { Article, Category, Profile, SiteSettings, NewsletterSubscriber, Comment, ArticlePoll } from '@/types/database';
+import { initialArticles, initialCategories, initialAuthors, initialSiteSettings, initialComments, initialPolls } from './initialData';
 import { createClient } from './supabase/client';
 
 // Local cache/store for zero-config seamless runtime
@@ -11,6 +11,8 @@ let inMemorySubscribers: NewsletterSubscriber[] = [
   { id: 'sub-1', email: 'reader1@example.com', is_active: true, subscribed_at: new Date().toISOString() },
   { id: 'sub-2', email: 'reader2@example.com', is_active: true, subscribed_at: new Date().toISOString() },
 ];
+let inMemoryComments: Comment[] = [...initialComments];
+let inMemoryPolls: Record<string, ArticlePoll> = { ...initialPolls };
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const supabase = createClient();
@@ -334,6 +336,7 @@ export async function getDashboardStats() {
   const totalViews = inMemoryArticles.reduce((acc, cur) => acc + (cur.views_count || 0), 0);
   const categoriesCount = inMemoryCategories.length;
   const subscribersCount = inMemorySubscribers.length;
+  const commentsCount = inMemoryComments.length;
 
   return {
     totalArticles: total,
@@ -343,10 +346,135 @@ export async function getDashboardStats() {
     totalViews,
     categoriesCount,
     subscribersCount,
+    commentsCount,
     recentArticles: inMemoryArticles.slice(0, 5).map(a => ({
       ...a,
       category: inMemoryCategories.find(c => c.id === a.category_id),
       author: inMemoryAuthors.find(au => au.id === a.author_id),
     })),
   };
+}
+
+// -------------------------------------------------------------
+// COMMENTS FUNCTIONS
+// -------------------------------------------------------------
+
+export async function getCommentsByArticleId(articleId: string): Promise<Comment[]> {
+  const supabase = createClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('article_id', articleId)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        return data;
+      }
+    } catch {
+      // fallback to memory
+    }
+  }
+
+  return inMemoryComments
+    .filter(c => c.article_id === articleId && c.is_approved)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+}
+
+export async function addComment(commentData: {
+  article_id: string;
+  user_name: string;
+  user_email?: string;
+  content: string;
+}): Promise<Comment> {
+  const newComment: Comment = {
+    id: `com-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    article_id: commentData.article_id,
+    user_name: commentData.user_name.trim(),
+    user_email: (commentData.user_email || 'visitor@sada.tn').trim(),
+    content: commentData.content.trim(),
+    is_approved: true,
+    likes_count: 0,
+    created_at: new Date().toISOString(),
+  };
+
+  const supabase = createClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({
+          article_id: newComment.article_id,
+          user_name: newComment.user_name,
+          user_email: newComment.user_email,
+          content: newComment.content,
+          is_approved: true,
+        })
+        .select('*')
+        .single();
+      if (!error && data) {
+        inMemoryComments.unshift(data);
+        return data;
+      }
+    } catch {
+      // fallback
+    }
+  }
+
+  inMemoryComments.unshift(newComment);
+  return newComment;
+}
+
+export async function likeComment(commentId: string): Promise<number> {
+  const comment = inMemoryComments.find(c => c.id === commentId);
+  if (comment) {
+    comment.likes_count = (comment.likes_count || 0) + 1;
+    return comment.likes_count;
+  }
+  return 1;
+}
+
+// -------------------------------------------------------------
+// POLL / SONDAGE FUNCTIONS
+// -------------------------------------------------------------
+
+export async function getArticlePoll(articleId: string): Promise<ArticlePoll> {
+  if (inMemoryPolls[articleId]) {
+    return inMemoryPolls[articleId];
+  }
+
+  const article = inMemoryArticles.find(a => a.id === articleId);
+  const articleTitle = article?.title ? `«${article.title.substring(0, 50)}...»` : 'هذا المقال';
+
+  const defaultPoll: ArticlePoll = {
+    id: `poll-${articleId}`,
+    article_id: articleId,
+    question: `ما هو تقييمك ورأيك في مضمون ${articleTitle}؟`,
+    options: [
+      { id: 'opt-1', text: 'مفيد جداً ومقنع بالمعلومات والحقائق', votes: 19 },
+      { id: 'opt-2', text: 'طرح متوازن وموضوعي إلى حد كبير', votes: 14 },
+      { id: 'opt-3', text: 'يحتاج لمزيد من الدقة والتحليل المعمق', votes: 6 },
+      { id: 'opt-4', text: 'لا أتفق مع زاوية التناول أو النتائج', votes: 3 },
+    ],
+    total_votes: 42,
+  };
+
+  inMemoryPolls[articleId] = defaultPoll;
+  return defaultPoll;
+}
+
+export async function voteArticlePoll(articleId: string, optionId: string): Promise<ArticlePoll> {
+  let poll = inMemoryPolls[articleId];
+  if (!poll) {
+    poll = await getArticlePoll(articleId);
+  }
+
+  const option = poll.options.find(o => o.id === optionId);
+  if (option) {
+    option.votes += 1;
+    poll.total_votes += 1;
+  }
+
+  return { ...poll, options: [...poll.options.map(o => ({ ...o }))] };
 }
