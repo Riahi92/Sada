@@ -73,24 +73,86 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSlugCustomized, setIsSlugCustomized] = useState(Boolean(initialData?.slug));
 
-  // File upload helper from PC
+  // Read file as Base64 helper
+  const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Compress image if needed
+  const compressImageIfNeeded = async (file: File): Promise<string> => {
+    const base64 = await readFileAsBase64(file);
+    if (typeof window === 'undefined' || file.size < 1.5 * 1024 * 1024) {
+      return base64;
+    }
+
+    return new Promise((resolve) => {
+      const img = document.createElement('img');
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1600;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.85));
+        } else {
+          resolve(base64);
+        }
+      };
+      img.onerror = () => resolve(base64);
+      img.src = base64;
+    });
+  };
+
+  // File upload helper from PC with 100% resilient fallback
   const uploadImageFile = async (file: File): Promise<string | null> => {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok && data.url) {
-        return data.url;
+      // 1. Prepare image data
+      const base64 = await compressImageIfNeeded(file);
+
+      // 2. Attempt server storage
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64, name: file.name }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) return data.url;
+        }
+      } catch (serverErr) {
+        console.warn('Server upload fallback active:', serverErr);
       }
-      throw new Error(data.error || 'Upload error');
+
+      // 3. Resilient fallback to Data URL
+      return base64;
     } catch (err) {
       console.error('File upload error:', err);
-      setMessage({ type: 'error', text: 'فشل رفع الصورة من الجهاز، يرجى المحاولة بصيغة أخرى (PNG, JPG, WebP).' });
-      return null;
+      try {
+        return await readFileAsBase64(file);
+      } catch {
+        setMessage({ type: 'error', text: 'تعذر قراءة الصورة من الجهاز، يرجى المحاولة بصورة أخرى.' });
+        return null;
+      }
     }
   };
 
@@ -101,9 +163,10 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
     const url = await uploadImageFile(file);
     if (url) {
       setFeaturedImage(url);
-      setMessage({ type: 'success', text: 'تم رفع صورة الغلاف بنجاح!' });
+      setMessage({ type: 'success', text: 'تم تحديد ورفع صورة الغلاف بنجاح!' });
     }
     setUploadingCover(false);
+    e.target.value = '';
   };
 
   const handleAuthorAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,9 +176,10 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
     const url = await uploadImageFile(file);
     if (url) {
       setAuthorAvatar(url);
-      setMessage({ type: 'success', text: 'تم تحديث صورة الكاتب بنجاح!' });
+      setMessage({ type: 'success', text: 'تم تحديد وتحديث صورة الكاتب بنجاح!' });
     }
     setUploadingAuthor(false);
+    e.target.value = '';
   };
 
   const handleBodyImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
