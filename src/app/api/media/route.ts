@@ -45,12 +45,52 @@ let mediaLibrary = [
   }
 ];
 
+import { writeFile, mkdir } from 'fs/promises';
+import path from 'path';
+
 export async function GET() {
   return NextResponse.json(mediaLibrary);
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const contentType = request.headers.get('content-type') || '';
+    
+    // Support multipart form-data upload from PC
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const file = formData.get('file') as File | null;
+      if (!file) {
+        return NextResponse.json({ error: 'لم يتم تحديد أي ملف' }, { status: 400 });
+      }
+
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      await mkdir(uploadsDir, { recursive: true });
+
+      const originalName = file.name || 'image.jpg';
+      const ext = path.extname(originalName) || '.jpg';
+      const safeBaseName = path.basename(originalName, ext).replace(/[^\w\d-]/g, '_').slice(0, 30);
+      const filename = `sada_${Date.now()}_${safeBaseName}${ext}`;
+      await writeFile(path.join(uploadsDir, filename), buffer);
+
+      const fileUrl = `/uploads/${filename}`;
+      const fileSizeFormatted = file.size > 1024 * 1024 
+        ? (file.size / (1024 * 1024)).toFixed(1) + ' MB'
+        : (file.size / 1024).toFixed(0) + ' KB';
+
+      const newMedia = {
+        id: `med-${Date.now()}`,
+        name: originalName,
+        url: fileUrl,
+        size: fileSizeFormatted,
+        created_at: new Date().toISOString()
+      };
+      mediaLibrary.unshift(newMedia);
+      return NextResponse.json(newMedia, { status: 201 });
+    }
+
     const body = await request.json();
     const newMedia = {
       id: `med-${Date.now()}`,

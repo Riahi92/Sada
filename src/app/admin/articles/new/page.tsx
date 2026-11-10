@@ -1,13 +1,16 @@
 import React from 'react';
 import ArticleForm from '@/components/admin/ArticleForm';
-import { getCategories } from '@/lib/db';
+import { getCategories, getUsers } from '@/lib/db';
 
 export default async function NewArticlePage() {
-  const categories = await getCategories();
+  const [categories, authors] = await Promise.all([
+    getCategories(),
+    getUsers(),
+  ]);
 
   return (
     <div className="max-w-6xl mx-auto">
-      <ArticleForm categories={categories} />
+      <ArticleForm categories={categories} authors={authors} />
     </div>
   );
 }

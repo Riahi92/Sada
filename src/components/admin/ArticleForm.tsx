@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { 
@@ -23,17 +23,22 @@ import {
   Clock,
   ArrowRight,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Upload,
+  User,
+  Camera,
+  Trash2
 } from 'lucide-react';
-import { Article, Category } from '@/types/database';
+import { Article, Category, Profile } from '@/types/database';
 
 interface ArticleFormProps {
   initialData?: Article | null;
   categories: Category[];
+  authors?: Profile[];
   isEdit?: boolean;
 }
 
-export default function ArticleForm({ initialData, categories, isEdit = false }: ArticleFormProps) {
+export default function ArticleForm({ initialData, categories, authors = [], isEdit = false }: ArticleFormProps) {
   const router = useRouter();
 
   const [title, setTitle] = useState(initialData?.title || '');
@@ -50,10 +55,100 @@ export default function ArticleForm({ initialData, categories, isEdit = false }:
   const [metaDescription, setMetaDescription] = useState(initialData?.meta_description || '');
   const [publishedAt, setPublishedAt] = useState(initialData?.published_at ? new Date(initialData.published_at).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16));
 
+  // Author State
+  const defaultAuthor = initialData?.author || (authors && authors[0]) || null;
+  const [authorId, setAuthorId] = useState<string>(initialData?.author_id || defaultAuthor?.id || 'custom');
+  const [authorName, setAuthorName] = useState<string>(initialData?.author?.full_name || defaultAuthor?.full_name || 'شيماء اسماعيلي');
+  const [authorAvatar, setAuthorAvatar] = useState<string>(initialData?.author?.avatar_url || defaultAuthor?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80');
+  const [authorRole, setAuthorRole] = useState<string>(initialData?.author?.role || 'journalist');
+  const [isCustomAuthor, setIsCustomAuthor] = useState<boolean>(!initialData?.author_id && !defaultAuthor?.id);
+
+  // Uploading states
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingAuthor, setUploadingAuthor] = useState(false);
+  const [uploadingBody, setUploadingBody] = useState(false);
+
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [isSlugCustomized, setIsSlugCustomized] = useState(Boolean(initialData?.slug));
+
+  // File upload helper from PC
+  const uploadImageFile = async (file: File): Promise<string | null> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        return data.url;
+      }
+      throw new Error(data.error || 'Upload error');
+    } catch (err) {
+      console.error('File upload error:', err);
+      setMessage({ type: 'error', text: 'فشل رفع الصورة من الجهاز، يرجى المحاولة بصيغة أخرى (PNG, JPG, WebP).' });
+      return null;
+    }
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCover(true);
+    const url = await uploadImageFile(file);
+    if (url) {
+      setFeaturedImage(url);
+      setMessage({ type: 'success', text: 'تم رفع صورة الغلاف بنجاح!' });
+    }
+    setUploadingCover(false);
+  };
+
+  const handleAuthorAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingAuthor(true);
+    const url = await uploadImageFile(file);
+    if (url) {
+      setAuthorAvatar(url);
+      setMessage({ type: 'success', text: 'تم تحديث صورة الكاتب بنجاح!' });
+    }
+    setUploadingAuthor(false);
+  };
+
+  const handleBodyImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingBody(true);
+    const url = await uploadImageFile(file);
+    if (url) {
+      const cleanFileName = file.name.replace(/\.[^/.]+$/, '');
+      const figureHtml = `\n<figure class="my-6">\n  <img src="${url}" alt="${cleanFileName}" class="w-full rounded-xl shadow-md object-cover" />\n  <figcaption class="text-xs text-gray-500 mt-2 text-center font-tajawal">وصف توضيحي للصورة: ${cleanFileName}</figcaption>\n</figure>\n`;
+      setContent((prev) => prev + figureHtml);
+      setMessage({ type: 'success', text: 'تم رفع وإدراج الصورة داخل المقال!' });
+    }
+    setUploadingBody(false);
+    e.target.value = '';
+  };
+
+  const handleAuthorSelect = (selectedVal: string) => {
+    setAuthorId(selectedVal);
+    if (selectedVal === 'custom') {
+      setIsCustomAuthor(true);
+      setAuthorName('');
+      setAuthorAvatar('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80');
+    } else {
+      setIsCustomAuthor(false);
+      const chosen = authors?.find((a) => a.id === selectedVal);
+      if (chosen) {
+        setAuthorName(chosen.full_name);
+        setAuthorAvatar(chosen.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80');
+        setAuthorRole(chosen.role || 'journalist');
+      }
+    }
+  };
 
   // Helper to generate clean slug (supports Arabic, English, numbers)
   const generateSlug = (text: string): string => {
@@ -123,6 +218,13 @@ export default function ArticleForm({ initialData, categories, isEdit = false }:
       content,
       category_id: categoryId,
       featured_image: featuredImage,
+      author_id: authorId !== 'custom' ? authorId : undefined,
+      author: {
+        id: authorId !== 'custom' ? authorId : undefined,
+        full_name: authorName.trim() || 'هيئة التحرير',
+        avatar_url: authorAvatar,
+        role: authorRole as any,
+      },
       status,
       is_featured: isFeatured,
       is_breaking: isBreaking,
@@ -368,10 +470,27 @@ export default function ArticleForm({ initialData, categories, isEdit = false }:
                     type="button"
                     onClick={handleImagePrompt}
                     className="p-1.5 hover:bg-gray-100 rounded"
-                    title="إدراج صورة داخل المقال"
+                    title="إدراج صورة عبر رابط URL"
                   >
                     <ImageIcon className="w-3.5 h-3.5" />
                   </button>
+
+                  {/* Direct Image Upload from PC into Article Content */}
+                  <label
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-brand-red rounded-md text-[11px] font-bold cursor-pointer transition border border-red-200"
+                    title="رفع صورة من الحاسوب وإدراجها مباشرة داخل المقال"
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBodyImageUpload}
+                      disabled={uploadingBody}
+                      className="hidden"
+                    />
+                    <Upload className={`w-3.5 h-3.5 ${uploadingBody ? 'animate-bounce' : ''}`} />
+                    <span>{uploadingBody ? 'جاري رفع الصورة...' : 'رفع صورة من الحاسوب'}</span>
+                  </label>
+
                   <button
                     type="button"
                     onClick={handleVideoPrompt}
@@ -516,35 +635,153 @@ export default function ArticleForm({ initialData, categories, isEdit = false }:
             </select>
           </div>
 
-          {/* Featured Image */}
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
-            <h3 className="font-heading font-bold text-sm text-brand-navy pb-2 border-b border-gray-100">
-              الصورة الرئيسية للمقال *
-            </h3>
+          {/* Author Settings (Photo and Name) */}
+          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+              <h3 className="font-heading font-bold text-sm text-brand-navy flex items-center gap-1.5">
+                <User className="w-4 h-4 text-brand-red" />
+                <span>بيانات كاتب ومحرر المقال</span>
+              </h3>
+              <span className="text-[10px] text-gray-400 font-tajawal">تظهر أسفل وأعلى المقال</span>
+            </div>
 
-            {featuredImage && (
-              <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                <Image
-                  src={featuredImage}
-                  alt="معاينة الصورة الرئيسية"
-                  fill
-                  className="object-cover"
-                />
+            {/* Author Selector */}
+            {authors.length > 0 && (
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  اختر من فريق التحرير أو أضف اسماً جديداً:
+                </label>
+                <select
+                  value={authorId}
+                  onChange={(e) => handleAuthorSelect(e.target.value)}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                >
+                  {authors.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.full_name} ({a.role === 'admin' ? 'مدير تحرير' : a.role === 'editor' ? 'محرر أول' : 'صحفي'})
+                    </option>
+                  ))}
+                  <option value="custom">+ كتابة اسم وصورة كاتب مخصص / كاتب جديد</option>
+                </select>
               </div>
             )}
 
+            {/* Author Name */}
             <div>
-              <label className="block text-[11px] text-gray-500 mb-1">
-                رابط الصورة (URL أو من مكتبة الوسائط):
+              <label className="block text-xs font-bold text-gray-700 mb-1">
+                اسم الكاتب / الصحفي *
               </label>
               <input
                 type="text"
                 required
-                value={featuredImage}
-                onChange={(e) => setFeaturedImage(e.target.value)}
-                placeholder="https://..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+                placeholder="مثال: شيماء اسماعيلي / أنيس الشابي"
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-brand-navy focus:outline-none focus:ring-1 focus:ring-brand-navy"
               />
+            </div>
+
+            {/* Author Avatar & Upload */}
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                صورة الكاتب الشخصية:
+              </label>
+
+              <div className="flex items-center gap-3">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-100 border-2 border-brand-red/30 flex-shrink-0 shadow-sm">
+                  {authorAvatar ? (
+                    <Image
+                      src={authorAvatar}
+                      alt={authorName || 'صورة الكاتب'}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <User className="w-6 h-6" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-1.5">
+                  <label className="flex items-center justify-center gap-1.5 w-full py-1.5 px-3 bg-gray-100 hover:bg-gray-200 text-brand-navy text-xs font-bold rounded-lg cursor-pointer transition border border-gray-300">
+                    <Camera className="w-3.5 h-3.5 text-brand-red" />
+                    <span>{uploadingAuthor ? 'جاري رفع الصورة...' : 'رفع صورة الكاتب من الحاسوب'}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAuthorAvatarUpload}
+                      disabled={uploadingAuthor}
+                      className="hidden"
+                    />
+                  </label>
+                  <input
+                    type="text"
+                    value={authorAvatar}
+                    onChange={(e) => setAuthorAvatar(e.target.value)}
+                    placeholder="أو ضع رابط صورة الكاتب (URL)..."
+                    className="w-full bg-white border border-gray-200 rounded px-2.5 py-1 text-[11px] text-gray-600 focus:outline-none focus:ring-1 focus:ring-brand-navy"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Featured Image (Cover Photo for Homepage and Article Header) */}
+          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+              <h3 className="font-heading font-bold text-sm text-brand-navy flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-brand-red" />
+                <span>صورة الغلاف (الواجهة الرئيسية والمقال) *</span>
+              </h3>
+            </div>
+
+            <p className="text-[11px] text-gray-500 font-tajawal">
+              هذه الصورة هي التي تظهر في الصفحة الرئيسية كغلاف للخبر، وتظهر بحجم عريض أعلى المقال.
+            </p>
+
+            {/* Cover Preview */}
+            {featuredImage && (
+              <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm group">
+                <Image
+                  src={featuredImage}
+                  alt="معاينة صورة الغلاف"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute top-2 right-2 bg-brand-navy/80 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
+                  صورة الغلاف الحالية
+                </div>
+              </div>
+            )}
+
+            {/* Upload from PC Button */}
+            <div className="space-y-2">
+              <label className="flex items-center justify-center gap-2 w-full py-2.5 bg-brand-red hover:bg-brand-redDark text-white text-xs font-bold rounded-lg cursor-pointer transition shadow-sm">
+                <Upload className={`w-4 h-4 ${uploadingCover ? 'animate-bounce' : ''}`} />
+                <span>{uploadingCover ? 'جاري رفع صورة الغلاف من الحاسوب...' : 'رفع صورة الغلاف من جهاز الحاسوب'}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverUpload}
+                  disabled={uploadingCover}
+                  className="hidden"
+                />
+              </label>
+
+              <div>
+                <label className="block text-[11px] text-gray-500 mb-1">
+                  أو أدخل رابط مباشر لصورة الغلاف (URL):
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={featuredImage}
+                  onChange={(e) => setFeaturedImage(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-navy font-mono text-gray-600"
+                />
+              </div>
             </div>
           </div>
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   Facebook, 
   Twitter, 
@@ -58,8 +59,14 @@ export default function ArticleReader({ article }: ArticleReaderProps) {
       <div className="bg-white rounded-lg border border-brand-border p-3.5 flex flex-wrap items-center justify-between gap-4 shadow-sm">
         {/* Meta details */}
         <div className="flex items-center gap-4 text-xs text-brand-muted">
-          <span className="flex items-center gap-1 font-semibold text-brand-navy">
-            <User className="w-3.5 h-3.5 text-brand-red" />
+          <span className="flex items-center gap-1.5 font-semibold text-brand-navy">
+            {article.author?.avatar_url ? (
+              <span className="relative w-5 h-5 rounded-full overflow-hidden border border-gray-200 inline-block flex-shrink-0">
+                <Image src={article.author.avatar_url} alt={article.author.full_name || 'الكاتب'} fill className="object-cover" />
+              </span>
+            ) : (
+              <User className="w-3.5 h-3.5 text-brand-red" />
+            )}
             <span>{article.author?.full_name || 'هيئة التحرير'}</span>
           </span>
           <span className="flex items-center gap-1">
@@ -164,6 +171,34 @@ export default function ArticleReader({ article }: ArticleReaderProps) {
         style={{ fontSize: `${fontSize}px`, lineHeight: 1.8 }}
         dangerouslySetInnerHTML={{ __html: article.content }}
       />
+
+      {/* Author Profile Card */}
+      {article.author && (
+        <div className="bg-gradient-to-r from-slate-50 to-white rounded-xl border border-gray-200 p-4 md:p-5 flex items-center gap-4 shadow-sm">
+          <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 border-2 border-brand-red/30 shadow">
+            <Image
+              src={article.author.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
+              alt={article.author.full_name || 'الكاتب'}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-0.5">
+              <span className="text-[10px] md:text-[11px] font-bold text-brand-red uppercase tracking-wide bg-red-50 px-2 py-0.5 rounded border border-red-100">
+                كاتب المقال
+              </span>
+              <span className="text-xs text-gray-400 font-tajawal">هيئة التحرير</span>
+            </div>
+            <h4 className="font-heading font-black text-base md:text-lg text-brand-navy">
+              {article.author.full_name}
+            </h4>
+            <p className="text-xs text-gray-500 font-tajawal mt-1">
+              محرر صحفي لدى منصة صدى الإخبارية - متخصص في متابعة الشأن العام، التحقيقات، والتغطيات الإخبارية الميدانية.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Facebook Page sharing box */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-5 flex flex-col sm:flex-row items-center justify-between gap-4">

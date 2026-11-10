@@ -153,7 +153,7 @@ export async function getArticles(params: GetArticlesParams = {}): Promise<{ art
   const articles = paginated.map(art => ({
     ...art,
     category: inMemoryCategories.find(c => c.id === art.category_id) || initialCategories.find(c => c.id === art.category_id || c.slug === art.category?.slug) || art.category,
-    author: inMemoryAuthors.find(au => au.id === art.author_id),
+    author: inMemoryAuthors.find(au => au.id === art.author_id) || art.author,
   }));
 
   return { articles, total };
@@ -165,8 +165,8 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 
   return {
     ...art,
-    category: inMemoryCategories.find(c => c.id === art.category_id),
-    author: inMemoryAuthors.find(au => au.id === art.author_id),
+    category: inMemoryCategories.find(c => c.id === art.category_id) || art.category,
+    author: inMemoryAuthors.find(au => au.id === art.author_id) || art.author,
   };
 }
 
@@ -223,6 +223,30 @@ export async function getRelatedArticles(articleId: string, categoryId: string, 
 // ==========================================
 
 export async function createArticle(data: Partial<Article>): Promise<Article> {
+  let resolvedAuthor = data.author;
+  let resolvedAuthorId = data.author_id || (inMemoryAuthors[0] ? inMemoryAuthors[0].id : undefined);
+
+  if (data.author && data.author.full_name) {
+    const existing = inMemoryAuthors.find(a => a.full_name === data.author?.full_name || a.id === data.author_id);
+    if (existing) {
+      if (data.author.avatar_url) existing.avatar_url = data.author.avatar_url;
+      resolvedAuthorId = existing.id;
+      resolvedAuthor = existing;
+    } else {
+      const newAuthor: Profile = {
+        id: `author-${Date.now()}`,
+        email: `${Date.now()}@sada.tn`,
+        full_name: data.author.full_name,
+        avatar_url: data.author.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+        role: 'journalist',
+        created_at: new Date().toISOString()
+      };
+      inMemoryAuthors.push(newAuthor);
+      resolvedAuthorId = newAuthor.id;
+      resolvedAuthor = newAuthor;
+    }
+  }
+
   const newArticle: Article = {
     id: `art-${Date.now()}`,
     title: data.title || 'بدون عنوان',
@@ -231,7 +255,8 @@ export async function createArticle(data: Partial<Article>): Promise<Article> {
     content: data.content || '',
     featured_image: data.featured_image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&auto=format&fit=crop&q=80',
     category_id: data.category_id || inMemoryCategories[0].id,
-    author_id: data.author_id || inMemoryAuthors[0].id,
+    author_id: resolvedAuthorId,
+    author: resolvedAuthor,
     status: data.status || 'draft',
     is_featured: !!data.is_featured,
     is_breaking: !!data.is_breaking,
@@ -252,9 +277,35 @@ export async function updateArticle(id: string, data: Partial<Article>): Promise
   const index = inMemoryArticles.findIndex(a => a.id === id);
   if (index === -1) return null;
 
+  let resolvedAuthor = data.author;
+  let resolvedAuthorId = data.author_id || inMemoryArticles[index].author_id;
+
+  if (data.author && data.author.full_name) {
+    const existing = inMemoryAuthors.find(a => a.full_name === data.author?.full_name || a.id === data.author_id);
+    if (existing) {
+      if (data.author.avatar_url) existing.avatar_url = data.author.avatar_url;
+      resolvedAuthorId = existing.id;
+      resolvedAuthor = existing;
+    } else {
+      const newAuthor: Profile = {
+        id: `author-${Date.now()}`,
+        email: `${Date.now()}@sada.tn`,
+        full_name: data.author.full_name,
+        avatar_url: data.author.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',
+        role: 'journalist',
+        created_at: new Date().toISOString()
+      };
+      inMemoryAuthors.push(newAuthor);
+      resolvedAuthorId = newAuthor.id;
+      resolvedAuthor = newAuthor;
+    }
+  }
+
   inMemoryArticles[index] = {
     ...inMemoryArticles[index],
     ...data,
+    author_id: resolvedAuthorId,
+    author: resolvedAuthor || inMemoryArticles[index].author,
     updated_at: new Date().toISOString(),
   };
 
