@@ -38,6 +38,29 @@ function loadPersistedArticles(): Article[] {
   return [...initialArticles];
 }
 
+function saveBase64Image(dataUri?: string, prefix: string = 'img'): string {
+  try {
+    if (!dataUri || !dataUri.startsWith('data:image/')) {
+      return dataUri || '';
+    }
+    const matches = dataUri.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+    if (!matches) return dataUri;
+
+    const ext = matches[1].toLowerCase() === 'jpeg' ? '.jpg' : `.${matches[1].toLowerCase()}`;
+    const buffer = Buffer.from(matches[2], 'base64');
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    const filename = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}${ext}`;
+    fs.writeFileSync(path.join(uploadsDir, filename), buffer);
+    return `/uploads/${filename}`;
+  } catch (err) {
+    console.error('Error saving base64 image to disk:', err);
+    return dataUri || '';
+  }
+}
+
 // Local cache/store for zero-config seamless runtime
 let inMemoryArticles: Article[] = loadPersistedArticles();
 let inMemoryCategories: Category[] = [...initialCategories];
@@ -273,6 +296,9 @@ export async function createArticle(data: Partial<Article>): Promise<Article> {
   let resolvedAuthorId = data.author_id || (inMemoryAuthors[0] ? inMemoryAuthors[0].id : undefined);
 
   if (data.author && data.author.full_name) {
+    if (data.author.avatar_url) {
+      data.author.avatar_url = saveBase64Image(data.author.avatar_url, 'author');
+    }
     const existing = inMemoryAuthors.find(a => a.full_name === data.author?.full_name || a.id === data.author_id);
     if (existing) {
       if (data.author.avatar_url) existing.avatar_url = data.author.avatar_url;
@@ -293,13 +319,15 @@ export async function createArticle(data: Partial<Article>): Promise<Article> {
     }
   }
 
+  const savedFeaturedImage = saveBase64Image(data.featured_image, 'cover') || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&auto=format&fit=crop&q=80';
+
   const newArticle: Article = {
     id: `art-${Date.now()}`,
     title: data.title || 'بدون عنوان',
     slug: data.slug || `article-${Date.now()}`,
     excerpt: data.excerpt || '',
     content: data.content || '',
-    featured_image: data.featured_image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&auto=format&fit=crop&q=80',
+    featured_image: savedFeaturedImage,
     category_id: data.category_id || inMemoryCategories[0].id,
     author_id: resolvedAuthorId,
     author: resolvedAuthor,

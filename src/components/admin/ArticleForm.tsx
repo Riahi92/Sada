@@ -263,10 +263,11 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!title.trim()) {
-      setMessage({ type: 'error', text: 'يرجى كتابة عنوان المقال' });
+      setMessage({ type: 'error', text: 'يرجى كتابة عنوان المقال أولاً' });
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -276,11 +277,11 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
     const finalSlug = slug.trim() || generateSlug(title) || `article-${Date.now()}`;
 
     const payload = {
-      title,
+      title: title.trim(),
       slug: finalSlug,
-      excerpt,
-      content,
-      category_id: categoryId,
+      excerpt: excerpt.trim() || title.trim(),
+      content: content.trim() || `<p>${title.trim()}</p>`,
+      category_id: categoryId || (categories[0]?.id || 'cat-1'),
       featured_image: featuredImage,
       author_id: authorId !== 'custom' ? authorId : undefined,
       author: {
@@ -289,12 +290,12 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
         avatar_url: authorAvatar,
         role: authorRole as any,
       },
-      status,
+      status: status || 'published',
       is_featured: isFeatured,
       is_breaking: isBreaking,
       video_url: videoUrl,
       meta_title: metaTitle || title,
-      meta_description: metaDescription || excerpt,
+      meta_description: metaDescription || excerpt || title,
       published_at: new Date(publishedAt).toISOString(),
     };
 
@@ -309,13 +310,18 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
       });
 
       if (res.ok) {
-        setMessage({ type: 'success', text: isEdit ? 'تم تحديث المقال بنجاح!' : 'تم نشر المقال بنجاح!' });
+        setMessage({ type: 'success', text: isEdit ? 'تم تحديث المقال بنجاح!' : 'تم نشر المقال بنجاح! جاري التوجيه...' });
         try { router.refresh(); } catch {}
         setTimeout(() => {
-          router.push('/admin/articles');
-        }, 1200);
+          if (typeof window !== 'undefined') {
+            window.location.href = '/admin/articles';
+          } else {
+            router.push('/admin/articles');
+          }
+        }, 800);
       } else {
-        setMessage({ type: 'error', text: 'حدث خطأ أثناء حفظ المقال' });
+        const errData = await res.json().catch(() => ({}));
+        setMessage({ type: 'error', text: errData.error || 'حدث خطأ أثناء حفظ المقال' });
       }
     } catch {
       setMessage({ type: 'error', text: 'تعذر الاتصال بالخادم' });
@@ -325,7 +331,7 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form noValidate onSubmit={handleSubmit} className="space-y-6">
       {/* Action Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm sticky top-4 z-20">
         <div className="flex items-center gap-3">
@@ -352,21 +358,25 @@ export default function ArticleForm({ initialData, categories, authors = [], isE
             type="button"
             onClick={() => {
               setStatus('draft');
-              handleSubmit({ preventDefault: () => {} } as any);
+              handleSubmit();
             }}
             disabled={saving}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-brand-navy text-xs font-bold rounded-lg transition disabled:opacity-60"
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-brand-navy text-xs font-bold rounded-lg transition disabled:opacity-60 cursor-pointer"
           >
             حفظ كمسودة
           </button>
 
           <button
-            type="submit"
+            type="button"
+            onClick={() => {
+              setStatus('published');
+              handleSubmit();
+            }}
             disabled={saving}
-            className="px-5 py-2 bg-brand-red hover:bg-brand-redDark text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5 disabled:opacity-60"
+            className="px-5 py-2 bg-brand-red hover:bg-brand-redDark text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5 disabled:opacity-60 cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>{saving ? 'جاري الحفظ...' : isEdit ? 'تحديث ونشر' : 'نشر المقال'}</span>
+            <span>{saving ? 'جاري الحفظ والنشر...' : isEdit ? 'تحديث ونشر' : 'نشر المقال'}</span>
           </button>
         </div>
       </div>
